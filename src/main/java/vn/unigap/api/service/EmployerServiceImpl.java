@@ -1,57 +1,32 @@
 package vn.unigap.api.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import vn.unigap.api.dto.in.EmployerDtoIn;
+import vn.unigap.api.dto.out.EmployerDtoOut;
 import vn.unigap.api.entity.Employer;
 import vn.unigap.api.repository.EmployerRepository;
 
-import java.util.Optional;
-
 @Service
-public class EmployerServiceImpl implements EmployerService {
+public class EmployerServiceImpl {
+
+    private final EmployerRepository employerRepository;
 
     @Autowired
-    private EmployerRepository employerRepository;
-
-    @Override
-    public Employer createEmployer(Employer employer) {
-        return employerRepository.save(employer);
+    public EmployerServiceImpl(EmployerRepository employerRepository) {
+        this.employerRepository = employerRepository;
     }
 
-    @Override
-    public Employer updateEmployer(Long id, Employer employer) {
-        // Check if the employer with the given ID exists
-        Optional<Employer> existingEmployerOpt = employerRepository.findById(id);
+    public EmployerDtoOut create(EmployerDtoIn employerDtoIn) {
 
-        if (existingEmployerOpt.isPresent()) {
-            Employer existingEmployer = existingEmployerOpt.get();
+        Employer employer = employerRepository.save(Employer.builder()
+                .email(employerDtoIn.getEmail())
+                .name(employerDtoIn.getName())
+                .provinceId(employerDtoIn.getProvinceId())
+                .description(employerDtoIn.getDescription())
+                .build());
 
-            // Update fields of the existing employer with values from the provided employer object
-            existingEmployer.setName(employer.getName());
-
-            //Update another field as needed
-            return employerRepository.save(existingEmployer);
-
-        } else {
-            // Handle the case where the employer with the given ID does not exist
-            throw new EntityNotFoundException("Employer with ID " + id + " not found.");
-        }
+        // Sử dụng phương thức from để chuyển đổi entity sang DTO
+        return EmployerDtoOut.from(employer);
     }
-
-    @Override
-    public Optional<Employer> getEmployerById(Long id) {
-        return employerRepository.findById(id);
-    }
-
-    @Override
-    public getPageOfEmployer() {
-        pending
-    }
-
-    @Override
-    public void deleteEmployer(Long id) {
-        employerRepository.deleteById(id);
-    }
-
 }

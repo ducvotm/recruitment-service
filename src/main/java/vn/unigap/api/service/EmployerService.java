@@ -1,14 +1,8 @@
 package vn.unigap.api.service;
 
-import vn.unigap.api.entity.Employer;
-
-import java.util.List;
-import java.util.Optional;
+import vn.unigap.api.dto.in.EmployerDtoIn;
+import vn.unigap.api.dto.out.EmployerDtoOut;
 
 public interface EmployerService {
-    Employer createEmployer(Employer employer);
-    Optional<Employer> getEmployerById(Long id);
-    List<Employer> getAllEmployers();
-    Employer updateEmployer(Long id, Employer employer);
-    void deleteEmployer(Long id);
+    EmployerDtoOut create(EmployerDtoIn employerDtoIn);
 }

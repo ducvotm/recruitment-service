@@ -2,12 +2,9 @@ package vn.unigap.api.entity;
 
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Data
@@ -16,14 +13,15 @@ import java.time.LocalDateTime;
 @Builder
 public class Employer {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @Column(unique = true)
     private String email;
 
     private String name;
-    private int province;
+    private String provinceId;
     private String description;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
+    private Date created_at = new Date();
+    private Date updated_at = new Date();
 }
