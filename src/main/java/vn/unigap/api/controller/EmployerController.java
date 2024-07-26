@@ -1,50 +1,35 @@
 package vn.unigap.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.unigap.api.dto.in.EmployerDtoIn;
+import vn.unigap.api.dto.out.ApiResponse;
 import vn.unigap.api.dto.out.EmployerDtoOut;
-import vn.unigap.api.entity.Employer;
-import vn.unigap.api.service.EmployerService;
-
-import java.util.Optional;
+import vn.unigap.api.service.EmployerServiceImpl;
 
 @RestController
 @RequestMapping("/employer")
 public class EmployerController {
 
-    @Autowired
-    private EmployerService employerService;
+    private final EmployerServiceImpl employerServiceImpl;
+
+    public EmployerController(EmployerServiceImpl employerServiceImpl) {
+        this.employerServiceImpl = employerServiceImpl;
+    }
 
     /*Create employer*/
-    @PostMapping()
-    public Employer createEmployer(@RequestBody Employer employer) {
-        return employerService.createEmployer(employer);
-    }
+    @PostMapping("/create")
+    public ResponseEntity<ApiResponse<EmployerDtoOut>> createEmployer(@RequestBody EmployerDtoIn employerDtoIn) {
+        EmployerDtoOut createdEmployer = employerServiceImpl.create(employerDtoIn);
 
-    /*Update employer*/
-    @PutMapping("/update")
-    public EmployerDtoOut updateEmployer(EmployerDtoIn employer) {
-        return employer.convertToDtoOut();
-    }
+        // Build the success response using the static method
+        ApiResponse<EmployerDtoOut> response = ApiResponse.success(createdEmployer);
 
-    /*Read employer*/
-    @GetMapping("{id}")
-    public Optional<Employer> getEmployerById(@PathVariable Long id) {
-        return employerService.getEmployerById(id);
+        // Return the response
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(response);
     }
-
-    @GetMapping(pending)
-    public EmployerDtoOut getPageOfEmployer(Pending) {
-        return employer.convertToDtoOut();
-    }
-
-    /*Delete employer*/
-    @DeleteMapping("/delete/{id}")
-    public void deleteEmployerById(@PathVariable Long id) {
-        employerService.deleteEmployer(id);
-    }
-
 }
 
 
