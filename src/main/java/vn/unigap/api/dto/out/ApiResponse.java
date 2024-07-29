@@ -27,8 +27,7 @@ public class ApiResponse<T> {
         }
 
         public static <T> ApiResponse<T> error(Integer errorCode, HttpStatus httpStatus, String message) {
-                return ApiResponse
-                        .<T>builder()
+                return ApiResponse.<T>builder()
                         .errorCode(errorCode)
                         .statusCode(httpStatus.value())
                         .message(message)
