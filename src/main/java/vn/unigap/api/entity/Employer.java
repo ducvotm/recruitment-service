@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -22,6 +23,20 @@ public class Employer {
     private String name;
     private String provinceId;
     private String description;
-    private Date created_at = new Date();
-    private Date updated_at = new Date();
+
+    @Column(updatable = false)
+    private LocalDateTime created_at;
+
+    private LocalDateTime updated_at;
+
+    @PrePersist
+    protected void onCreate() {
+        created_at = LocalDateTime.now();
+        updated_at = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updated_at = LocalDateTime.now();
+    }
 }
