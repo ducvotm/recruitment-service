@@ -26,7 +26,7 @@ public class EmployerDtoIn {
     private String name;
 
     @NotNull
-    private String provinceId;
+    private Integer province;
 
     private String description;
 
