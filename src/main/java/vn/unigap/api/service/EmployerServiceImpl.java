@@ -30,7 +30,7 @@ public class EmployerServiceImpl implements EmployerService {
         Employer employer = employerRepository.save(Employer.builder()
                 .email(employerDtoIn.getEmail())
                 .name(employerDtoIn.getName())
-                .provinceId(employerDtoIn.getProvinceId())
+                .province(employerDtoIn.getProvince())
                 .description(employerDtoIn.getDescription())
                 .build());
 

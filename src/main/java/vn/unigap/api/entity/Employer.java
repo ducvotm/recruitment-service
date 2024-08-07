@@ -20,7 +20,7 @@ public class Employer {
     private String email;
 
     private String name;
-    private String provinceId;
+    private Integer province;
     private String description;
     private Date created_at = new Date();
     private Date updated_at = new Date();
