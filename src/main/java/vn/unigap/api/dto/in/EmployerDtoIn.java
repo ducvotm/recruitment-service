@@ -1,5 +1,6 @@
 package vn.unigap.api.dto.in;
 
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -26,8 +27,9 @@ public class EmployerDtoIn {
     private String name;
 
     @NotNull
-    private String provinceId;
+    private Integer province;
 
+    
     private String description;
 
 }

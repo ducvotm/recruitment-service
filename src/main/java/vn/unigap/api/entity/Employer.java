@@ -21,7 +21,11 @@ public class Employer {
     private String email;
 
     private String name;
-    private String provinceId;
+
+    @JoinColumn(name = "province")
+    @ManyToOne
+    private JobProvince province;
+
     private String description;
 
     @Column(updatable = false)

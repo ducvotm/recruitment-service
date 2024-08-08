@@ -15,17 +15,23 @@ import vn.unigap.api.dto.out.EmployerDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.dto.out.UpdateEmployerDtoOut;
 import vn.unigap.api.entity.Employer;
+import vn.unigap.api.entity.JobProvince;
 import vn.unigap.api.repository.EmployerRepository;
+import vn.unigap.api.repository.ProvinceRepository;
 
 @Service
 public class EmployerServiceImpl implements EmployerService {
 
     private final EmployerRepository employerRepository;
+    private final ProvinceRepository provinceRepository;
 
     @Autowired
-    public EmployerServiceImpl(EmployerRepository employerRepository) {
+    public EmployerServiceImpl(EmployerRepository employerRepository, ProvinceRepository provinceRepository) {
         this.employerRepository = employerRepository;
+        this.provinceRepository= provinceRepository;
     }
+
+
 
     @Override
     public EmployerDtoOut create(EmployerDtoIn employerDtoIn) {
@@ -34,10 +40,14 @@ public class EmployerServiceImpl implements EmployerService {
             throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "email already existed");
         });
 
+        // Check if the province exists
+        JobProvince jobProvince = provinceRepository.findById(employerDtoIn.getProvince())
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
+
         Employer employer = employerRepository.save(Employer.builder()
                 .email(employerDtoIn.getEmail())
                 .name(employerDtoIn.getName())
-                .provinceId(employerDtoIn.getProvinceId())
+                .province(jobProvince)
                 .description(employerDtoIn.getDescription())
                 .build());
 
@@ -52,9 +62,13 @@ public class EmployerServiceImpl implements EmployerService {
         Employer employer = employerRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
 
+        // Check if the province exists
+        JobProvince jobProvince = provinceRepository.findById(employerDtoIn.getProvince())
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
+
         employer.setEmail(employerDtoIn.getEmail());
         employer.setName(employerDtoIn.getName());
-        employer.setProvinceId(employerDtoIn.getProvinceId());
+        employer.setProvince(jobProvince);
         employer.setDescription(employerDtoIn.getDescription());
 
         employer = employerRepository.save(employer);
