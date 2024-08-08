@@ -26,7 +26,7 @@ public class UpdateEmployerDtoOut {
     private String name;
 
 
-    private String provinceId;
+    private Integer province;
     private String description;
     private LocalDateTime updated_at;
 
@@ -36,7 +36,7 @@ public class UpdateEmployerDtoOut {
                 .id(employer.getId())
                 .email(employer.getEmail())
                 .name(employer.getName())
-                .provinceId(employer.getProvinceId())
+                .province(employer.getProvince().getId())
                 .description(employer.getDescription())
                 .updated_at(employer.getUpdated_at())
                 .build();

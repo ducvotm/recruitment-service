@@ -29,7 +29,7 @@ public class EmployerDtoOut {
     @Size(max=255)
     private String name;
 
-    private String provinceId;
+    private Integer province;
     private String description;
     private LocalDateTime created_at;
     private LocalDateTime update_at;
@@ -41,7 +41,7 @@ public class EmployerDtoOut {
                 .id(employer.getId())
                 .email(employer.getEmail())
                 .name(employer.getName())
-                .provinceId(employer.getProvinceId())
+                .province(employer.getProvince().getId())
                 .description(employer.getDescription())
                 .created_at(employer.getCreated_at())
                 .created_at(employer.getUpdated_at())
