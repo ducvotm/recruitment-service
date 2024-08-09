@@ -21,7 +21,6 @@ public class ApiExceptionHandler {
     /*Handles custom ApiException*/
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiResponse<Object>> handleApiException(ApiException ex) {
-        captureException(ex, ex.getHttpStatus());
         return responseEntity(ex.getErrorCode(), ex.getHttpStatus(), ex.getMessage());
     }
 
@@ -38,14 +37,12 @@ public class ApiExceptionHandler {
 
         String msg = String.format("Validation errors: fields [%s], global [%s]", fieldErrors, globalErrors);
 
-        captureException(ex, HttpStatus.BAD_REQUEST);
         return responseEntity(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, msg);
     }
 
     /*Handles all other generic exceptions*/
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(Exception ex) {
-        captureException(ex, HttpStatus.INTERNAL_SERVER_ERROR);
         return responseEntity(ErrorCode.INTERNAL_ERR, HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
     }
 
@@ -58,12 +55,5 @@ public class ApiExceptionHandler {
                 .message(msg)
                 .build();
         return new ResponseEntity<>(apiResponse, status);
-    }
-
-    /*The captureException method logs exceptions to Sentry, distinguishing between client and server errors based on the HTTP status code.*/
-    private void captureException(Exception ex, HttpStatus status) {
-        SentryEvent event = new SentryEvent(ex);
-        event.setLevel(status.is5xxServerError() ? SentryLevel.ERROR : SentryLevel.INFO);
-        Sentry.captureEvent(event);
     }
 }
