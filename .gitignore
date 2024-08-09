@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore specific files
+src/main/java/vn/unigap/api/entity/Province.java
+src/main/java/vn/unigap/api/repository/ProvinceRepository.java
+src/main/java/vn/unigap/api/service/ProvinceService.java
+src/main/java/vn/unigap/api/service/ProvinceServiceImpl.java
+
