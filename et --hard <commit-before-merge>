@@ -1,0 +1,78 @@
+[33mcommit 6d7eb15dc0c7a7a585a745f9949a2e65d4adadd4[m[33m ([m[1;36mHEAD -> [m[1;32mfeature/sprint-3[m[33m)[m
+Merge: 229c092 c6f1ac2
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Fri Aug 9 09:23:49 2024 +0700
+
+    Merge Employer API into main
+
+[33mcommit 229c092b4a867097e0b16d0d43b5758c58e212b0[m[33m ([m[1;31morigin/feature/sprint-3[m[33m)[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Fri Aug 9 09:22:02 2024 +0700
+
+    Remove Sentry method as feedbacks
+
+[33mcommit 6ac0454a5407a6959abb6493b98a60130385fe44[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Thu Aug 8 11:39:09 2024 +0700
+
+    Update exception handler
+
+[33mcommit f87afb26b532dc44b50069c2eada0a64b393bf9c[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Thu Aug 8 10:20:20 2024 +0700
+
+    Add handle check existing province
+
+[33mcommit c6f1ac254c94fe8e81387f035bfc8c1d93e1d184[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Wed Aug 7 11:47:52 2024 +0700
+
+    Rename the province column
+
+[33mcommit 16fae7ba8bcfbb81fadac5d9718c8082739c517e[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Wed Aug 7 11:14:20 2024 +0700
+
+    Update .gitignore to ignore specific files
+
+[33mcommit 392771c6648306a0f79ac9cf5dc47bacffcfbf7b[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Fri Aug 2 15:12:25 2024 +0700
+
+    Update http status
+
+[33mcommit f77c0789a9ffc7845f619f200a8ea901e6f7df42[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Thu Aug 1 11:14:07 2024 +0700
+
+    Finish the Employer API
+
+[33mcommit d38d067d483f087d102f9676cf17589368b8c932[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Mon Jul 29 09:33:30 2024 +0700
+
+    Delete path /create & adding logic for checking existed email
+
+[33mcommit 69b219f953773573507470b3d4e21701d6b90070[m[33m ([m[1;32mfeature/sprint-4[m[33m)[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Fri Jul 26 12:31:17 2024 +0700
+
+    Connect to job_db & create Employer api
+
+[33mcommit 7f4b655eaf8ed5d307b51e3863be21dcd0b28c56[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Wed Jul 24 12:41:53 2024 +0700
+
+    Create dummyAPI for employerAPI
+
+[33mcommit b57d1d60a803265404fa148a2be36c5ab9295ed2[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Thu Jul 18 11:52:29 2024 +0700
+
+    Add validation for Inputs
+
+[33mcommit 59da8de5284539af0b17ab7a2f28491811b71f52[m[33m ([m[1;32mtest[m[33m)[m
+Author: duke141 <vtminhduc140101@gmail.com>
+Date:   Thu Jul 11 10:20:18 2024 +0700
+
+    First commit
