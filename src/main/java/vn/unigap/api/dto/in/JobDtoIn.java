@@ -27,10 +27,10 @@ public class JobDtoIn {
     private String description;
 
     @NotNull
-    private Long fieldIds;
+    private String fieldIds;
 
     @NotNull
-    private Long provinceIds;
+    private String provinceIds;
 
     @NotNull
     private Integer salary;

@@ -21,7 +21,7 @@ public class ModelMapperConfig {
             protected void configure() {
                 map().setEmployerId(source.getEmployerId());  // Map Long directly
                 map().setFields(String.valueOf(source.getFieldIds()));  // Convert Long to String if needed
-                map().setProvinces(Math.toIntExact(source.getProvinceIds()));  // Convert Long to Integer
+                map().setProvinces(source.getProvinceIds());  // Convert Long to Integer
                 map().setExpiredAt(source.getExpiredAt());
             }
         });
@@ -32,7 +32,7 @@ public class ModelMapperConfig {
             protected void configure() {
                 // Mapping fields directly if names match
                 map().setFields(source.getFields());  // No conversion needed here
-                map().setProvinces(source.getProvinces());  // No conversion needed here
+                map().setProvinces(String.valueOf(source.getProvinces()));  // No conversion needed here
             }
         });
 
