@@ -18,6 +18,7 @@ import java.util.Set;
 @Table(name = "jobs")
 public class Job {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long employerId;
@@ -50,4 +51,6 @@ public class Job {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+
 }

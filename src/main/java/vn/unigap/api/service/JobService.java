@@ -9,5 +9,9 @@ import vn.unigap.api.dto.out.PageDtoOut;
 
 
 public interface JobService {
-    JobDtoOut create(JobDtoIn jobDtoIn);
+    public JobDtoOut create(JobDtoIn jobDtoIn);
+    public JobDtoOut update(Long jobId, JobDtoIn jobDtoIn);
+    JobDtoOut get(Long id);
+    PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn);
+    void delete(Long id);
 }
