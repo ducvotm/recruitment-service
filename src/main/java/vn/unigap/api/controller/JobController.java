@@ -27,7 +27,7 @@ public class JobController {
 
     /*Create job*/
     @PostMapping()
-    public ResponseEntity<ApiResponse<JobDtoOut>> createJob(@RequestBody JobDtoIn jobDtoIn) {
+    public ResponseEntity<ApiResponse<JobDtoOut>> createJob(@RequestBody @Valid JobDtoIn jobDtoIn) {
         JobDtoOut createdJob = jobService.create(jobDtoIn);
 
         // Build the success response using the static method
@@ -35,6 +35,57 @@ public class JobController {
 
         // Return the response
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+    }
+
+    /*Create job*/
+    @PutMapping("{id}")
+    public ResponseEntity<ApiResponse<JobDtoOut>> updateJob(@PathVariable Long id, @RequestBody @Valid JobDtoIn jobDtoIn) {
+        JobDtoOut updatedJob = jobService.update(id, jobDtoIn);
+
+        // Build the success response using the static method
+        ApiResponse<JobDtoOut> response = ApiResponse.success(updatedJob);
+
+        // Return the response
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+    }
+
+    /*Get job by id*/
+    @GetMapping("{id}")
+    public ResponseEntity<ApiResponse<JobDtoOut>> getJobById(@PathVariable Long id) {
+        JobDtoOut gotJob = jobService.get(id);
+
+        // Build the success response using the static method
+        ApiResponse<JobDtoOut> response = ApiResponse.success(gotJob);
+
+        // Return the response
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    /*Get list of job*/
+    @GetMapping()
+    public ResponseEntity<ApiResponse<PageDtoOut<JobDtoOut>>> getListOfJob(@Valid PageDtoIn pageDtoIn) {
+        PageDtoOut<JobDtoOut> listOfJob = jobService.list(pageDtoIn);
+
+        // Build the success response using the static method
+        ApiResponse<PageDtoOut<JobDtoOut>> response = ApiResponse.success(listOfJob);
+
+        // Return the response
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(response);
+    }
+
+    /*Delete job by id*/
+    @DeleteMapping("{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteJob (@PathVariable Long id) {
+        jobService.delete(id);
+
+        // Build the success response using the static method
+        ApiResponse<Void> response = ApiResponse.success(null);
+
+        // Return the response
+        return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
 }

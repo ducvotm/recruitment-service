@@ -35,7 +35,6 @@ public class JobDtoIn {
     @NotNull
     private Integer salary;
 
-    @NotNull
     private LocalDateTime expiredAt;
 
 }
