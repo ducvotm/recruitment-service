@@ -38,7 +38,7 @@ public class JobController {
 
     }
 
-    /*Create job*/
+    /*Update job*/
     @PutMapping("{id}")
     public ResponseEntity<ApiResponse<JobDtoOut>> updateJob(@PathVariable Long id, @RequestBody @Valid JobDtoIn jobDtoIn) {
         JobDtoOut updatedJob = jobService.update(id, jobDtoIn);
