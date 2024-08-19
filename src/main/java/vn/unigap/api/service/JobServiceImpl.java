@@ -89,7 +89,8 @@ public class JobServiceImpl implements JobService {
     @Override
     public PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn) {
         Page<Job> employers = this.jobRepository
-                .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(), Sort.by("name").ascending()));
+                .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(),
+                        Sort.by("expiredAt").descending()));
 
         return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), employers.getTotalElements(),
                 employers.stream().map(JobDtoOut::from).toList());
@@ -105,28 +106,29 @@ public class JobServiceImpl implements JobService {
     private void validateEmployerFieldAndProvinceExistence(JobDtoIn jobDtoIn) {
 
         // Check if the job exists
-        String jobCheckSql = "SELECT COUNT(*) FROM job WHERE id = ?";
+        String jobCheckSql = "SELECT COUNT(*) FROM employer WHERE id = ?";
         Integer jobCount = jdbcTemplate.queryForObject(jobCheckSql, Integer.class, jobDtoIn.getEmployerId());
         if (jobCount == null || jobCount == 0) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Job does not exist");
-        }
-        // Check if the fields exist
-        String[] fieldIdsArray = jobDtoIn.getFieldIds().split("-");
-        for (String fieldId : fieldIdsArray) {
-            String fieldCheckSql = "SELECT COUNT(*) FROM job_field WHERE id = ?";
-            Integer fieldCount = jdbcTemplate.queryForObject(fieldCheckSql, Integer.class, Integer.parseInt(fieldId.trim()));
-            if (fieldCount == null || fieldCount == 0) {
-                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Field with ID " + fieldId + " does not exist");
-            }
-        }
-
-        // Check if the provinces exist
-        String[] provinceIdsArray = jobDtoIn.getProvinceIds().split("-");
-        for (String provinceId : provinceIdsArray) {
-            String provinceCheckSql = "SELECT COUNT(*) FROM job_province WHERE id = ?";
-            Integer provinceCount = jdbcTemplate.queryForObject(provinceCheckSql, Integer.class, Integer.parseInt(provinceId.trim()));
-            if (provinceCount == null || provinceCount == 0) {
-                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province with ID " + provinceId + " does not exist");
+            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Employer does not exist");
+        } else {
+            // Check if the fields exist
+            String[] fieldIdsArray = jobDtoIn.getFieldIds().split("-");
+            for (String fieldId : fieldIdsArray) {
+                String fieldCheckSql = "SELECT COUNT(*) FROM job_field WHERE id = ?";
+                Integer fieldCount = jdbcTemplate.queryForObject(fieldCheckSql, Integer.class, Integer.parseInt(fieldId.trim()));
+                if (fieldCount == null || fieldCount == 0) {
+                    throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Field with ID " + fieldId + " does not exist");
+                } else {
+                    // Check if the provinces exist
+                    String[] provinceIdsArray = jobDtoIn.getProvinceIds().split("-");
+                    for (String provinceId : provinceIdsArray) {
+                        String provinceCheckSql = "SELECT COUNT(*) FROM job_province WHERE id = ?";
+                        Integer provinceCount = jdbcTemplate.queryForObject(provinceCheckSql, Integer.class, Integer.parseInt(provinceId.trim()));
+                        if (provinceCount == null || provinceCount == 0) {
+                            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province with ID " + provinceId + " does not exist");
+                        }
+                    }
+                }
             }
         }
     }
