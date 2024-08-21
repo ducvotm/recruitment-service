@@ -15,24 +15,34 @@ import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.out.JobDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.entity.Job;
+import vn.unigap.api.repository.EmployerRepository;
+import vn.unigap.api.repository.FieldRepository;
 import vn.unigap.api.repository.JobRepository;
+import vn.unigap.api.repository.ProvinceRepository;
 
 @Service
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
+    private final EmployerRepository employerRepository;
+    private final FieldRepository fieldRepository;
+    private final ProvinceRepository provinceRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public JobServiceImpl(JobRepository jobRepository, JdbcTemplate jdbcTemplate) {
+    public JobServiceImpl(JobRepository jobRepository, EmployerRepository employerRepository, FieldRepository fieldRepository, ProvinceRepository provinceRepository,
+            JdbcTemplate jdbcTemplate) {
         this.jobRepository = jobRepository;
+        this.employerRepository = employerRepository;
+        this.fieldRepository = fieldRepository;
+        this.provinceRepository = provinceRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public JobDtoOut create(JobDtoIn jobDtoIn) {
 
-        // Validate if the fields and provinces exist
+        // Validate if employer, the fields and provinces exist
         validateEmployerFieldAndProvinceExistence(jobDtoIn);
 
         // Create and save the Job entity
@@ -88,12 +98,12 @@ public class JobServiceImpl implements JobService {
     /*Copy from sample projects*/
     @Override
     public PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn) {
-        Page<Job> employers = this.jobRepository
+        Page<Job> jobs = this.jobRepository
                 .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(),
                         Sort.by("expiredAt").descending()));
 
-        return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), employers.getTotalElements(),
-                employers.stream().map(JobDtoOut::from).toList());
+        return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), jobs.getTotalElements(),
+                jobs.stream().map(JobDtoOut::from).toList());
     }
 
     @Override
@@ -105,31 +115,25 @@ public class JobServiceImpl implements JobService {
 
     private void validateEmployerFieldAndProvinceExistence(JobDtoIn jobDtoIn) {
 
-        // Check if the job exists
-        String jobCheckSql = "SELECT COUNT(*) FROM employer WHERE id = ?";
-        Integer jobCount = jdbcTemplate.queryForObject(jobCheckSql, Integer.class, jobDtoIn.getEmployerId());
-        if (jobCount == null || jobCount == 0) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Employer does not exist");
-        } else {
-            // Check if the fields exist
-            String[] fieldIdsArray = jobDtoIn.getFieldIds().split("-");
-            for (String fieldId : fieldIdsArray) {
-                String fieldCheckSql = "SELECT COUNT(*) FROM job_field WHERE id = ?";
-                Integer fieldCount = jdbcTemplate.queryForObject(fieldCheckSql, Integer.class, Integer.parseInt(fieldId.trim()));
-                if (fieldCount == null || fieldCount == 0) {
-                    throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Field with ID " + fieldId + " does not exist");
-                } else {
-                    // Check if the provinces exist
-                    String[] provinceIdsArray = jobDtoIn.getProvinceIds().split("-");
-                    for (String provinceId : provinceIdsArray) {
-                        String provinceCheckSql = "SELECT COUNT(*) FROM job_province WHERE id = ?";
-                        Integer provinceCount = jdbcTemplate.queryForObject(provinceCheckSql, Integer.class, Integer.parseInt(provinceId.trim()));
-                        if (provinceCount == null || provinceCount == 0) {
-                            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province with ID " + provinceId + " does not exist");
-                        }
-                    }
-                }
+        // Check if the employer exists
+        if (!employerRepository.existsById(jobDtoIn.getEmployerId())) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The employer does not exist");
+        }
+
+        // Check if the fields exist
+        String[] fieldIdsArray = jobDtoIn.getFieldIds().split("-");
+        for (String fieldId : fieldIdsArray) {
+            if (!fieldRepository.existsById(Long.valueOf(fieldId))) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The field with ID " + fieldId + " does not exist");
             }
         }
+
+        // Check if the provinces exist
+        String[] provinceIdsArray = jobDtoIn.getProvinceIds().split("-");
+        for (String provinceId : provinceIdsArray) {
+            if (!provinceRepository.existsById(Long.valueOf(provinceId))) {
+                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The province with ID " + provinceId + " does not exist");
+            }
     }
+}
 }
