@@ -98,9 +98,9 @@ public class JobServiceImpl implements JobService {
     /*Copy from sample projects*/
     @Override
     public PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn) {
+
         Page<Job> jobs = this.jobRepository
-                .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(),
-                        Sort.by("expiredAt").descending()));
+                .findAllJobsOrderedByExpiredAtAndEmployerName(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize()));
 
         return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), jobs.getTotalElements(),
                 jobs.stream().map(JobDtoOut::from).toList());
