@@ -13,5 +13,5 @@ public class MetricsByDateDtoOut {
 
     private int numEmployer;
     private int numJob;
-    private int[] chart;
+
 }
