@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 public class MetricsByDateDtoIn {
 
     @NotNull
-    private LocalDate fromDate;
+    private LocalDateTime fromDate;
 
     @NotNull
-    private LocalDate toDate;
+    private LocalDateTime toDate;
 }
