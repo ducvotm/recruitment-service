@@ -5,16 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MetricsByDateDtoOut {
+public class ChartDtoOut {
 
-    private int numEmployer;
-    private int numJob;
+    private LocalDate date;
+    private Integer numEmployer;
+    private Integer numJob;
 
-    List<ChartDtoOut> chart;
+
 }
