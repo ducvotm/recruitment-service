@@ -27,20 +27,42 @@ public class MetricServiceImpl implements MetricService{
 
     @Override
     public MetricsByDateDtoOut getMetricsByDate(MetricsByDateDtoIn metricsByDateDtoIn) {
+
+        // Get date from the user
         LocalDate fromDate = metricsByDateDtoIn.getFromDate();
         LocalDate toDate = metricsByDateDtoIn.getToDate();
+
+        // Define the start and the end of the Day
+        LocalDateTime startDay = LocalDateTime.of(fromDate, LocalTime.MIN);
+        LocalDateTime endDay = LocalDateTime.of(toDate, LocalTime.MAX);
 
         List<ChartDtoOut> chart = new ArrayList<>();
 
         Integer totalEmployers = 0;
         Integer totalJobs = 0;
 
-        for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
-            LocalDateTime startOfDay = LocalDateTime.of(date, LocalTime.MIN);
-            LocalDateTime endOfDay = LocalDateTime.of(date, LocalTime.MAX);
+        // Fetch employer counts grouped by date
+        List<Object[]> employerResults = this.employerRepository.findEmployerCountForDate(startDay, endDay);
+        // Fetch employer counts grouped by date
+        List<Object[]> jobResults = this.jobRepository.findJobCountForDate(startDay, endDay);
 
-            Integer dailyEmployerCount = this.employerRepository.findEmployerCountForDate(startOfDay, endOfDay);
-            Integer dailyJobCount = this.jobRepository.findJobCountForDate(startOfDay, endOfDay);
+
+        // Process the results
+        for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
+
+            //Stream the results
+            LocalDate finalDate = date;
+            Integer dailyEmployerCount = employerResults.stream()
+                    .filter(r -> r[0].equals(finalDate))
+                    .map(r -> ((Number) r[1]).intValue())
+                    .findFirst()
+                    .orElse(0);
+
+            Integer dailyJobCount = jobResults.stream()
+                    .filter(r -> r[0].equals(finalDate))
+                    .map(r -> ((Number) r[1]).intValue())
+                    .findFirst()
+                    .orElse(0);
 
             totalEmployers += dailyEmployerCount;
             totalJobs += dailyJobCount;
