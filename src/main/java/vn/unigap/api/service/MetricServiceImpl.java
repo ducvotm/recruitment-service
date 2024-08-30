@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class MetricServiceImpl implements MetricService{
+public class MetricServiceImpl implements MetricService {
 
     private final EmployerRepository employerRepository;
     private final JobRepository jobRepository;
 
-    @Autowired MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository) {
+    @Autowired
+    public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository) {
         this.employerRepository = employerRepository;
         this.jobRepository = jobRepository;
     }
@@ -43,23 +44,35 @@ public class MetricServiceImpl implements MetricService{
 
         // Fetch employer counts grouped by date
         List<Object[]> employerResults = this.employerRepository.findEmployerCountForDate(startDay, endDay);
-        // Fetch employer counts grouped by date
+        // Fetch job counts grouped by date
         List<Object[]> jobResults = this.jobRepository.findJobCountForDate(startDay, endDay);
 
+
+        // Verify the results
+        System.out.println("Employer Results:");
+        for (Object[] result : employerResults) {
+            System.out.println("Date: " + result[0] + ", Type: " + result[0].getClass().getName() + ", Count: " + result[1]);
+        }
+
+        System.out.println("Job Results:");
+        for (Object[] result : jobResults) {
+            System.out.println("Date: " + result[0] + ", Type: " + result[0].getClass().getName() + ", Count: " + result[1]);
+        }
 
         // Process the results
         for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
 
-            //Stream the results
             LocalDate finalDate = date;
+
+            // Stream the results
             Integer dailyEmployerCount = employerResults.stream()
-                    .filter(r -> r[0].equals(finalDate))
+                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
                     .map(r -> ((Number) r[1]).intValue())
                     .findFirst()
                     .orElse(0);
 
             Integer dailyJobCount = jobResults.stream()
-                    .filter(r -> r[0].equals(finalDate))
+                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
                     .map(r -> ((Number) r[1]).intValue())
                     .findFirst()
                     .orElse(0);
@@ -72,5 +85,5 @@ public class MetricServiceImpl implements MetricService{
 
         return new MetricsByDateDtoOut(totalEmployers, totalJobs, chart);
     }
-
 }
+
