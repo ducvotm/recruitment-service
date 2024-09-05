@@ -1,6 +1,7 @@
 package vn.unigap.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import vn.unigap.api.dto.in.MetricsByDateDtoIn;
 import vn.unigap.api.dto.out.MetricsByDateDtoOut;
@@ -46,18 +47,6 @@ public class MetricServiceImpl implements MetricService {
         List<Object[]> employerResults = this.employerRepository.findEmployerCountForDate(startDay, endDay);
         // Fetch job counts grouped by date
         List<Object[]> jobResults = this.jobRepository.findJobCountForDate(startDay, endDay);
-
-
-        // Verify the results
-        System.out.println("Employer Results:");
-        for (Object[] result : employerResults) {
-            System.out.println("Date: " + result[0] + ", Type: " + result[0].getClass().getName() + ", Count: " + result[1]);
-        }
-
-        System.out.println("Job Results:");
-        for (Object[] result : jobResults) {
-            System.out.println("Date: " + result[0] + ", Type: " + result[0].getClass().getName() + ", Count: " + result[1]);
-        }
 
         // Process the results
         for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
