@@ -1,6 +1,9 @@
 package vn.unigap.api.service;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,7 @@ import vn.unigap.api.repository.JobRepository;
 import vn.unigap.api.repository.ProvinceRepository;
 
 @Service
+@CacheConfig(cacheNames = {"job"})
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
@@ -86,7 +90,12 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @Cacheable(key = "#id")
     public JobDtoOut get(Long id) {
+
+        // Log to verify if the method is being called
+        System.out.println("Fetching job with id: " + id);
+
         // Check if the id is existing yet
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
