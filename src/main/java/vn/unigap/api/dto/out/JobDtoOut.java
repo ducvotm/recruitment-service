@@ -1,5 +1,6 @@
 package vn.unigap.api.dto.out;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,16 +16,37 @@ import java.time.LocalDateTime;
 @Builder
 public class JobDtoOut {
 
+    @JsonProperty
     private Long id;
+
+    @JsonProperty
     private Long employerId;
+
+    @JsonProperty
     private String title;
+
+    @JsonProperty
     private Integer quantity;
+
+    @JsonProperty
     private String description;
+
+    @JsonProperty
     private Integer salary;
+
+    @JsonProperty
     private String fields;
+
+    @JsonProperty
     private String provinces;
+
+    @JsonProperty
     private LocalDateTime createdAt;
+
+    @JsonProperty
     private LocalDateTime updatedAt;
+
+    @JsonProperty
     private LocalDateTime expiredAt;
 
     public static JobDtoOut from(Job job) {
