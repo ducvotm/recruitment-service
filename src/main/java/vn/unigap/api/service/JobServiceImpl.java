@@ -23,7 +23,6 @@ import vn.unigap.api.repository.JobRepository;
 import vn.unigap.api.repository.ProvinceRepository;
 
 @Service
-@CacheConfig(cacheNames = {"job"})
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
@@ -90,18 +89,21 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    @Cacheable(key = "#id")
+    @Cacheable(value = "jobs", key = "#id")
     public JobDtoOut get(Long id) {
 
-        // Log to verify if the method is being called
         System.out.println("Fetching job with id: " + id);
 
-        // Check if the id is existing yet
         Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Job not found"));
 
-        return JobDtoOut.from(job);
+        JobDtoOut jobDtoOut = JobDtoOut.from(job);
+        System.out.println("Returning jobDtoOut: " + jobDtoOut);
+
+        return jobDtoOut;
     }
+
+
 
     /*Copy from sample projects*/
     @Override
