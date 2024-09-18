@@ -26,6 +26,8 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Configuration
@@ -35,59 +37,58 @@ public class CacheConfig {
     @Value("${spring.cache.redis.time-to-live.default:1m}")
     private Duration defaultTtl;
 
+    private final Environment environment;
+
+    public CacheConfig(Environment environment) {
+        this.environment = environment;
+    }
+
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-
-        // Enable default typing to include type information in JSON
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         return mapper;
     }
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
-        // Create the serializer with the custom ObjectMapper
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
-        // Create default RedisCacheConfiguration
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues()
                 .entryTtl(defaultTtl)
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-        // Build the RedisCacheManager with default configuration
+        // Tạo cấu hình cache động từ thuộc tính ứng dụng
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+
+        String[] dynamicCacheNames = environment.getProperty("spring.cache.redis.dynamic-names", String[].class, new String[]{});
+
+        for (String cacheName : dynamicCacheNames) {
+            // Lấy TTL cho từng cache từ file cấu hình
+            String ttlProperty = "spring.cache.redis." + cacheName + ".ttl";
+            Duration ttl = Optional.ofNullable(environment.getProperty(ttlProperty, Long.class))
+                    .map(Duration::ofSeconds)
+                    .orElse(defaultTtl);
+
+            // Tạo cấu hình cache với TTL riêng
+            RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+                    .disableCachingNullValues()
+                    .entryTtl(ttl)
+                    .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                    .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
+
+            // Thêm cấu hình vào map
+            cacheConfigurations.put(cacheName, cacheConfig);
+        }
+
+        // Trả về RedisCacheManager với các cấu hình cache động
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(defaultConfig)
+                .cacheDefaults(defaultConfig) // Cấu hình mặc định cho cache
+                .withInitialCacheConfigurations(cacheConfigurations) // Cấu hình cache động
                 .build();
     }
-
-    @Configuration
-    public static class CachingConfiguration implements CacheManagerCustomizer<RedisCacheManager> {
-
-        private final Environment environment;
-        private final Duration defaultTtl;
-
-        public CachingConfiguration(Environment environment, @Value("${spring.cache.redis.time-to-live.default:1m}") Duration defaultTtl) {
-            this.environment = environment;
-            this.defaultTtl = defaultTtl;
-        }
-
-        @Override
-        public void customize(RedisCacheManager cacheManager) {
-            // Dynamically create caches based on cache names used in @Cacheable annotations
-            cacheManager.getCacheNames().forEach(cacheName -> {
-                // Get the TTL for the cache name from application properties (if available)
-                String ttlProperty = "caching.configurations." + cacheName + ".ttl";
-                Duration ttl = Optional.ofNullable(environment.getProperty(ttlProperty, Long.class))
-                        .map(Duration::ofSeconds)
-                        .orElse(defaultTtl);
-
-                // Create a new cache configuration with the specific TTL
-                RedisCacheConfiguration newConfiguration = RedisCacheConfiguration.defaultCacheConfig().entryTtl(ttl);
-                cacheManager.getCacheNames().forEach(name -> cacheManager.getCache(name).putIfAbsent(name, newConfiguration));
-            });
-        }
-    }
 }
+
