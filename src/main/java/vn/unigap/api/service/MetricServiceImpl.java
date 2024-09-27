@@ -28,6 +28,9 @@ public class MetricServiceImpl implements MetricService {
     }
 
     @Override
+    @Cacheable(
+            value = "metricsByDateCache"
+    )
     public MetricsByDateDtoOut getMetricsByDate(MetricsByDateDtoIn metricsByDateDtoIn) {
 
         // Get date from the user
