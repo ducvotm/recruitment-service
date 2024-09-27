@@ -1,29 +1,19 @@
 package vn.unigap.api.configure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
-import org.springframework.cache.annotation.CachingConfigurer;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.interceptor.CacheInterceptor;
-import org.springframework.cache.interceptor.CacheOperationSource;
-import org.springframework.cache.jcache.config.JCacheConfigurerSupport;
-import org.springframework.cache.support.AbstractCacheManager;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -32,63 +22,60 @@ import java.util.Optional;
 
 @Configuration
 @EnableCaching
+@EnableConfigurationProperties(RedisCacheProperties.class)
 public class CacheConfig {
 
-    @Value("${spring.cache.redis.time-to-live.default:1m}")
-    private Duration defaultTtl;
+    private final RedisCacheProperties redisCacheProperties;
 
-    private final Environment environment;
-
-    public CacheConfig(Environment environment) {
-        this.environment = environment;
+    public CacheConfig(RedisCacheProperties redisCacheProperties) {
+        this.redisCacheProperties = redisCacheProperties;
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
+    public GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer() {
         ObjectMapper mapper = new ObjectMapper();
+
+        // Register modules for Java 8 date/time (LocalDate, LocalDateTime)
         mapper.registerModule(new JavaTimeModule());
-        mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        return mapper;
+
+        // Optional: If you need to control date/time formatting, you can add a date/time format here
+        // mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        return new GenericJackson2JsonRedisSerializer(mapper);
+
     }
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
+        // Default cache configuration
         RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues()
-                .entryTtl(defaultTtl)
+                .entryTtl(redisCacheProperties.getTimeToLiveDefault())
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-        // Tạo cấu hình cache động từ thuộc tính ứng dụng
+        // Dynamic cache configurations
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
-        String[] dynamicCacheNames = environment.getProperty("spring.cache.redis.dynamic-names", String[].class, new String[]{});
+        for (String cacheName : redisCacheProperties.getDynamicNames()) {
+            Long ttl = redisCacheProperties.getTtl().get(cacheName);
+            Duration cacheTtl = Optional.ofNullable(ttl).map(Duration::ofSeconds).orElse(redisCacheProperties.getTimeToLiveDefault());
 
-        for (String cacheName : dynamicCacheNames) {
-            // Lấy TTL cho từng cache từ file cấu hình
-            String ttlProperty = "spring.cache.redis." + cacheName + ".ttl";
-            Duration ttl = Optional.ofNullable(environment.getProperty(ttlProperty, Long.class))
-                    .map(Duration::ofSeconds)
-                    .orElse(defaultTtl);
-
-            // Tạo cấu hình cache với TTL riêng
             RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
                     .disableCachingNullValues()
-                    .entryTtl(ttl)
+                    .entryTtl(cacheTtl)
                     .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                     .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-            // Thêm cấu hình vào map
             cacheConfigurations.put(cacheName, cacheConfig);
         }
 
-        // Trả về RedisCacheManager với các cấu hình cache động
+        // Return the RedisCacheManager with the defined configurations
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(defaultConfig) // Cấu hình mặc định cho cache
-                .withInitialCacheConfigurations(cacheConfigurations) // Cấu hình cache động
+                .cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
     }
 }
-
