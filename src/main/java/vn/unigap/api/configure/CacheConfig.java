@@ -1,6 +1,8 @@
 package vn.unigap.api.configure;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,6 +16,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -38,15 +41,21 @@ public class CacheConfig {
         // Register modules for Java 8 date/time (LocalDate, LocalDateTime)
         mapper.registerModule(new JavaTimeModule());
 
-        // Optional: If you need to control date/time formatting, you can add a date/time format here
-        // mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        // Register your DTOs for polymorphic deserialization
+        mapper.registerSubtypes(MetricsByDateDtoOut.class);
+
+        // Optional: Disable writing dates as timestamps (use ISO-8601 format)
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // Optional: Handle unknown properties gracefully
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         return new GenericJackson2JsonRedisSerializer(mapper);
-
     }
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
+        // Use custom ObjectMapper to ensure consistent serialization
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         // Default cache configuration
@@ -56,7 +65,7 @@ public class CacheConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-        // Dynamic cache configurations
+        // Dynamic cache configurations based on cache names and their TTL
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
         for (String cacheName : redisCacheProperties.getDynamicNames()) {
