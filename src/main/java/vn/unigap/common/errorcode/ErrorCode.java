@@ -1,4 +1,4 @@
-package vn.unigap.api.common;
+package vn.unigap.common.errorcode;
 
 // Refer to sample project
 public class ErrorCode {

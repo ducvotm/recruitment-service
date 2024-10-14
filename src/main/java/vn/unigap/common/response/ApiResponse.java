@@ -1,20 +1,23 @@
-package vn.unigap.api.dto.out;
+package vn.unigap.common.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
-import vn.unigap.api.common.ErrorCode;
+import vn.unigap.common.errorcode.ErrorCode;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class ApiResponse<T> {
         private int errorCode;
+
         private int statusCode;
+
         private String message;
+
         private T object;
 
         public static <T> ApiResponse<T> success(T object) {
