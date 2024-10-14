@@ -1,4 +1,4 @@
-package vn.unigap.api.common;
+package vn.unigap.common.exception;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

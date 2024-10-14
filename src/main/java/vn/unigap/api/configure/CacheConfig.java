@@ -1,10 +1,6 @@
 package vn.unigap.api.configure;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
@@ -16,7 +12,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
-import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -40,15 +35,6 @@ public class CacheConfig {
 
         // Register modules for Java 8 date/time (LocalDate, LocalDateTime)
         mapper.registerModule(new JavaTimeModule());
-
-        // Register your DTOs for polymorphic deserialization
-        mapper.registerSubtypes(MetricsByDateDtoOut.class);
-
-        // Optional: Disable writing dates as timestamps (use ISO-8601 format)
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        // Optional: Handle unknown properties gracefully
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         return new GenericJackson2JsonRedisSerializer(mapper);
     }

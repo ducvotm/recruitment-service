@@ -2,7 +2,6 @@ package vn.unigap.api.controller;
 
 import jakarta.validation.Valid;
 
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
-import vn.unigap.api.dto.out.ApiResponse;
+import vn.unigap.common.response.ApiResponse;
 import vn.unigap.api.dto.out.JobDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.service.JobService;

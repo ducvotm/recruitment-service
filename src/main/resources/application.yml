@@ -1,0 +1,24 @@
+spring:
+  cache:
+    type: redis
+    redis:
+      time-to-default: PT2M
+      dynamic-names:
+        - jobs
+        - metricsByDateCache
+      ttl:
+        jobs: 300
+        metricsByDateCache: 300
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: Redis@123
+
+  # Logging configuration
+  logging:
+    level:
+      vn.unigap.api.common.ApiExceptionHandler: DEBUG  # Set logging level for your exception handler
+
+

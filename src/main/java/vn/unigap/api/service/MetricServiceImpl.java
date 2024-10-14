@@ -3,12 +3,10 @@ package vn.unigap.api.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
 import vn.unigap.api.dto.in.MetricsByDateDtoIn;
-import vn.unigap.api.dto.out.ApiResponse;
 import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 import vn.unigap.api.dto.out.ChartDtoOut;
 import vn.unigap.api.repository.EmployerRepository;
