@@ -37,4 +37,3 @@ public class RedisCacheProperties {
         this.ttl = ttl;
     }
 }
-

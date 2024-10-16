@@ -12,6 +12,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -36,41 +37,46 @@ public class CacheConfig {
         // Register modules for Java 8 date/time (LocalDate, LocalDateTime)
         mapper.registerModule(new JavaTimeModule());
 
+        mapper.registerSubtypes(MetricsByDateDtoOut.class);
+
+        // Optional: If you need to control date/time formatting, you can add a
+        // date/time format here
+        // mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         return new GenericJackson2JsonRedisSerializer(mapper);
+
     }
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
-        // Use custom ObjectMapper to ensure consistent serialization
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         // Default cache configuration
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .disableCachingNullValues()
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig().disableCachingNullValues()
                 .entryTtl(redisCacheProperties.getTimeToLiveDefault())
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeKeysWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
-        // Dynamic cache configurations based on cache names and their TTL
+        // Dynamic cache configurations
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
         for (String cacheName : redisCacheProperties.getDynamicNames()) {
             Long ttl = redisCacheProperties.getTtl().get(cacheName);
-            Duration cacheTtl = Optional.ofNullable(ttl).map(Duration::ofSeconds).orElse(redisCacheProperties.getTimeToLiveDefault());
+            Duration cacheTtl = Optional.ofNullable(ttl).map(Duration::ofSeconds)
+                    .orElse(redisCacheProperties.getTimeToLiveDefault());
 
             RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                    .disableCachingNullValues()
-                    .entryTtl(cacheTtl)
-                    .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                    .disableCachingNullValues().entryTtl(cacheTtl)
+                    .serializeKeysWith(
+                            RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                     .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
             cacheConfigurations.put(cacheName, cacheConfig);
         }
 
         // Return the RedisCacheManager with the defined configurations
-        return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(defaultConfig)
-                .withInitialCacheConfigurations(cacheConfigurations)
-                .build();
+        return RedisCacheManager.builder(connectionFactory).cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(cacheConfigurations).build();
     }
 }

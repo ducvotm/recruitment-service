@@ -9,7 +9,8 @@ public abstract class AbstractResponseController {
         return responseEntity(callback, HttpStatus.OK);
     }
 
-    public <T> ResponseEntity<ApiResponse<T>> responseEntity(vn.unigap.common.controller.CallbackFunction<T> callback, HttpStatus status) {
+    public <T> ResponseEntity<ApiResponse<T>> responseEntity(vn.unigap.common.controller.CallbackFunction<T> callback,
+            HttpStatus status) {
         T result = callback.execute();
         return ResponseEntity.status(status).body(ApiResponse.success(result));
     }

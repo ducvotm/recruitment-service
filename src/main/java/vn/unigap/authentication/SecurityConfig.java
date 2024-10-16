@@ -43,12 +43,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
-                        .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
+                .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
                 // .cors(cfg -> cfg.disable())
                 .csrf(cfg -> cfg.disable())
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/auth/login", "/actuator/**").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests((requests) -> requests.requestMatchers("/swagger-ui.html", "/swagger-ui/**",
+                        "/v3/api-docs/**", "/auth/login", "/actuator/**").permitAll().anyRequest().authenticated())
                 .oauth2ResourceServer(configurer -> {
                     configurer.authenticationEntryPoint(customAuthEntryPoint);
                     configurer.jwt(jwtConfigurer -> {

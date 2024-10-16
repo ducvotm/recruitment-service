@@ -28,7 +28,8 @@ public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder;
 
-    public AuthServiceImpl(UserDetailsService userDetailsService, JwtEncoder jwtEncoder, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(UserDetailsService userDetailsService, JwtEncoder jwtEncoder,
+            PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.jwtEncoder = jwtEncoder;
         this.passwordEncoder = passwordEncoder;
@@ -39,8 +40,7 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails;
         try {
             userDetails = this.userDetailsService.loadUserByUsername(loginDtoIn.getUsername());
-        }
-        catch (UsernameNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             throw new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "invalid credentials");
         }
 
@@ -57,9 +57,9 @@ public class AuthServiceImpl implements AuthService {
         long exp = iat + Duration.ofHours(8).toSeconds();
 
         JwtEncoderParameters parameters = JwtEncoderParameters.from(JwsHeader.with(SignatureAlgorithm.RS256).build(),
-        JwtClaimsSet.builder().subject(username).issuedAt(Instant.ofEpochSecond(iat))
-                .expiresAt(Instant.ofEpochSecond(exp)).claim("user_name", username)
-                .claim("scope", List.of("ADMIN")).build());
+                JwtClaimsSet.builder().subject(username).issuedAt(Instant.ofEpochSecond(iat))
+                        .expiresAt(Instant.ofEpochSecond(exp)).claim("user_name", username)
+                        .claim("scope", List.of("ADMIN")).build());
 
         try {
             return jwtEncoder.encode(parameters).getTokenValue();

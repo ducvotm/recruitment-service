@@ -8,9 +8,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableCaching
 public class RecruitmentServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RecruitmentServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(RecruitmentServiceApplication.class, args);
+    }
 }
-
-
