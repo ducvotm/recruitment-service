@@ -16,5 +16,6 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     Page<Job> findAllJobsOrderedByExpiredAtAndEmployerName(Pageable pageable);
 
     @Query("SELECT DATE(j.createdAt), COUNT(j.id) FROM Job j WHERE j.createdAt between :startOfDay and :endOfDay GROUP BY DATE(j.createdAt)")
-    List<Object[]> findJobCountForDate(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
+    List<Object[]> findJobCountForDate(@Param("startOfDay") LocalDateTime startOfDay,
+            @Param("endOfDay") LocalDateTime endOfDay);
 }

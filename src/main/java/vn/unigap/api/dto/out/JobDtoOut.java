@@ -50,18 +50,9 @@ public class JobDtoOut {
     private LocalDateTime expiredAt;
 
     public static JobDtoOut from(Job job) {
-        return JobDtoOut.builder()
-                .id(job.getId())
-                .employerId(job.getEmployerId())
-                .title(job.getTitle())
-                .quantity(job.getQuantity())
-                .description(job.getDescription())
-                .salary(job.getSalary())
-                .fields(job.getFields())
-                .provinces(job.getProvinces())
-                .createdAt(job.getCreatedAt())
-                .updatedAt(job.getUpdatedAt())
-                .expiredAt(job.getExpiredAt())
-                .build();
+        return JobDtoOut.builder().id(job.getId()).employerId(job.getEmployerId()).title(job.getTitle())
+                .quantity(job.getQuantity()).description(job.getDescription()).salary(job.getSalary())
+                .fields(job.getFields()).provinces(job.getProvinces()).createdAt(job.getCreatedAt())
+                .updatedAt(job.getUpdatedAt()).expiredAt(job.getExpiredAt()).build();
     }
 }

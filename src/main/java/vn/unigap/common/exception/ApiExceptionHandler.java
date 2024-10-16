@@ -40,8 +40,7 @@ public class ApiExceptionHandler {
                 .map(fieldError -> String.format("%s:%s", fieldError.getObjectName(), fieldError.getField()))
                 .collect(Collectors.joining(", "));
 
-        String globalErrors = ex.getGlobalErrors().stream()
-                .map(ObjectError::getObjectName)
+        String globalErrors = ex.getGlobalErrors().stream().map(ObjectError::getObjectName)
                 .collect(Collectors.joining(", "));
 
         String msg = String.format("Validation errors: fields [%s], global [%s]", fieldErrors, globalErrors);
@@ -61,11 +60,8 @@ public class ApiExceptionHandler {
 
     /* Creates a response entity */
     private ResponseEntity<ApiResponse<Object>> responseEntity(Integer errorCode, HttpStatus status, String msg) {
-        ApiResponse<Object> apiResponse = ApiResponse.builder()
-                .errorCode(errorCode)
-                .statusCode(status.value())
-                .message(msg)
-                .build();
+        ApiResponse<Object> apiResponse = ApiResponse.builder().errorCode(errorCode).statusCode(status.value())
+                .message(msg).build();
         return new ResponseEntity<>(apiResponse, status);
     }
 }

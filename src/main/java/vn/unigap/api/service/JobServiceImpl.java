@@ -1,6 +1,5 @@
 package vn.unigap.api.service;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -31,8 +30,8 @@ public class JobServiceImpl implements JobService {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public JobServiceImpl(JobRepository jobRepository, EmployerRepository employerRepository, FieldRepository fieldRepository, ProvinceRepository provinceRepository,
-            JdbcTemplate jdbcTemplate) {
+    public JobServiceImpl(JobRepository jobRepository, EmployerRepository employerRepository,
+            FieldRepository fieldRepository, ProvinceRepository provinceRepository, JdbcTemplate jdbcTemplate) {
         this.jobRepository = jobRepository;
         this.employerRepository = employerRepository;
         this.fieldRepository = fieldRepository;
@@ -47,15 +46,9 @@ public class JobServiceImpl implements JobService {
         validateEmployerFieldAndProvinceExistence(jobDtoIn);
 
         // Create and save the Job entity
-        Job job = jobRepository.save(Job.builder()
-                .title(jobDtoIn.getTitle())
-                .employerId(jobDtoIn.getEmployerId())
-                .quantity(jobDtoIn.getQuantity())
-                .description(jobDtoIn.getDescription())
-                .fields(jobDtoIn.getFieldIds())
-                .provinces(jobDtoIn.getProvinceIds())
-                .salary(jobDtoIn.getSalary())
-                .expiredAt(jobDtoIn.getExpiredAt())
+        Job job = jobRepository.save(Job.builder().title(jobDtoIn.getTitle()).employerId(jobDtoIn.getEmployerId())
+                .quantity(jobDtoIn.getQuantity()).description(jobDtoIn.getDescription()).fields(jobDtoIn.getFieldIds())
+                .provinces(jobDtoIn.getProvinceIds()).salary(jobDtoIn.getSalary()).expiredAt(jobDtoIn.getExpiredAt())
                 .build());
 
         // Convert Entity to DTO
@@ -72,16 +65,11 @@ public class JobServiceImpl implements JobService {
         validateEmployerFieldAndProvinceExistence(jobDtoIn);
 
         // Update and save the Job entity
-        Job updatedjob = jobRepository.save(Job.builder()
-                .title(jobDtoIn.getTitle())
-                .employerId(jobDtoIn.getEmployerId())
-                .quantity(jobDtoIn.getQuantity())
-                .description(jobDtoIn.getDescription())
-                .fields(jobDtoIn.getFieldIds())
-                .provinces(jobDtoIn.getProvinceIds())
-                .salary(jobDtoIn.getSalary())
-                .expiredAt(jobDtoIn.getExpiredAt())
-                .build());
+        Job updatedjob = jobRepository
+                .save(Job.builder().title(jobDtoIn.getTitle()).employerId(jobDtoIn.getEmployerId())
+                        .quantity(jobDtoIn.getQuantity()).description(jobDtoIn.getDescription())
+                        .fields(jobDtoIn.getFieldIds()).provinces(jobDtoIn.getProvinceIds())
+                        .salary(jobDtoIn.getSalary()).expiredAt(jobDtoIn.getExpiredAt()).build());
 
         // Convert updated entity to DTO
         return JobDtoOut.from(updatedjob);
@@ -102,14 +90,12 @@ public class JobServiceImpl implements JobService {
         return jobDtoOut;
     }
 
-
-
-    /*Copy from sample projects*/
+    /* Copy from sample projects */
     @Override
     public PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn) {
 
-        Page<Job> jobs = this.jobRepository
-                .findAllJobsOrderedByExpiredAtAndEmployerName(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize()));
+        Page<Job> jobs = this.jobRepository.findAllJobsOrderedByExpiredAtAndEmployerName(
+                PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize()));
 
         return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), jobs.getTotalElements(),
                 jobs.stream().map(JobDtoOut::from).toList());
@@ -133,7 +119,8 @@ public class JobServiceImpl implements JobService {
         String[] fieldIdsArray = jobDtoIn.getFieldIds().split("-");
         for (String fieldId : fieldIdsArray) {
             if (!fieldRepository.existsById(Long.valueOf(fieldId))) {
-                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The field with ID " + fieldId + " does not exist");
+                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST,
+                        "The field with ID " + fieldId + " does not exist");
             }
         }
 
@@ -141,8 +128,9 @@ public class JobServiceImpl implements JobService {
         String[] provinceIdsArray = jobDtoIn.getProvinceIds().split("-");
         for (String provinceId : provinceIdsArray) {
             if (!provinceRepository.existsById(Long.valueOf(provinceId))) {
-                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The province with ID " + provinceId + " does not exist");
+                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST,
+                        "The province with ID " + provinceId + " does not exist");
             }
+        }
     }
-}
 }

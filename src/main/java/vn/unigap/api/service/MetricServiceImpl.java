@@ -28,7 +28,7 @@ public class MetricServiceImpl implements MetricService {
 
     @Autowired
     public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository,
-                             RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+            RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.employerRepository = employerRepository;
         this.jobRepository = jobRepository;
         this.redisTemplate = redisTemplate;
@@ -72,16 +72,12 @@ public class MetricServiceImpl implements MetricService {
             // Find the daily employer count
             Integer dailyEmployerCount = employerResults.stream()
                     .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
-                    .map(r -> ((Number) r[1]).intValue())
-                    .findFirst()
-                    .orElse(0);
+                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
 
             // Find the daily job count
             Integer dailyJobCount = jobResults.stream()
                     .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
-                    .map(r -> ((Number) r[1]).intValue())
-                    .findFirst()
-                    .orElse(0);
+                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
 
             // Accumulate totals
             totalEmployers += dailyEmployerCount;
@@ -105,5 +101,5 @@ public class MetricServiceImpl implements MetricService {
 
         return metricsData;
     }
-    
+
 }

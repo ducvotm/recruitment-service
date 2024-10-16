@@ -17,5 +17,4 @@ public class ChartDtoOut {
     private Integer numEmployer;
     private Integer numJob;
 
-
 }

@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Data
@@ -36,7 +35,7 @@ public class Employer {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt= LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
