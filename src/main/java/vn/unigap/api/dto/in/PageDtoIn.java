@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
-public class    PageDtoIn {
+public class PageDtoIn {
     @NotNull
     @Min(value = 1)
     private Integer page = 1;
