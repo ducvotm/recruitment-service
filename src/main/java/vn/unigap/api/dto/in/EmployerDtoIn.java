@@ -1,6 +1,5 @@
 package vn.unigap.api.dto.in;
 
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -10,7 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,11 +16,11 @@ import lombok.NoArgsConstructor;
 public class EmployerDtoIn {
 
     @Email
-    @Size(max=255)
+    @Size(max = 255)
     @NotNull
     private String email;
 
-    @Size(max=255)
+    @Size(max = 255)
     @NotNull
     private String name;
 

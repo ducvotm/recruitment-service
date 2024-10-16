@@ -19,12 +19,11 @@ public class UpdateEmployerDtoOut {
     private long id;
 
     @Email
-    @Size(max=255)
+    @Size(max = 255)
     private String email;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String name;
-
 
     private Integer province;
     private String description;
@@ -32,13 +31,8 @@ public class UpdateEmployerDtoOut {
 
     // Create a new UpdateEmployerDtoOut from an Employer entity
     public static UpdateEmployerDtoOut from(Employer employer) {
-        return UpdateEmployerDtoOut.builder()
-                .id(employer.getId())
-                .email(employer.getEmail())
-                .name(employer.getName())
-                .province(employer.getProvince())
-                .description(employer.getDescription())
-                .updated_at(employer.getUpdated_at())
-                .build();
+        return UpdateEmployerDtoOut.builder().id(employer.getId()).email(employer.getEmail()).name(employer.getName())
+                .province(employer.getProvince()).description(employer.getDescription())
+                .updated_at(employer.getUpdated_at()).build();
     }
 }

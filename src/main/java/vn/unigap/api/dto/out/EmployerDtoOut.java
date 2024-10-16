@@ -1,6 +1,5 @@
 package vn.unigap.api.dto.out;
 
-import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
@@ -11,8 +10,6 @@ import lombok.NoArgsConstructor;
 import vn.unigap.api.entity.Employer;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-
 
 @Data
 @AllArgsConstructor
@@ -23,10 +20,10 @@ public class EmployerDtoOut {
     private long id;
 
     @Email
-    @Size(max=255)
+    @Size(max = 255)
     private String email;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String name;
 
     private Integer province;
@@ -34,17 +31,10 @@ public class EmployerDtoOut {
     private LocalDateTime created_at;
     private LocalDateTime update_at;
 
-
-    //Covert DtoOut to Employer for saving
+    // Covert DtoOut to Employer for saving
     public static EmployerDtoOut from(Employer employer) {
-        return EmployerDtoOut.builder()
-                .id(employer.getId())
-                .email(employer.getEmail())
-                .name(employer.getName())
-                .province(employer.getProvince())
-                .description(employer.getDescription())
-                .created_at(employer.getCreated_at())
-                .created_at(employer.getUpdated_at())
-                .build();
+        return EmployerDtoOut.builder().id(employer.getId()).email(employer.getEmail()).name(employer.getName())
+                .province(employer.getProvince()).description(employer.getDescription())
+                .created_at(employer.getCreated_at()).created_at(employer.getUpdated_at()).build();
     }
 }

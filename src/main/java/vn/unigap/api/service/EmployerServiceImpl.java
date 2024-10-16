@@ -28,10 +28,8 @@ public class EmployerServiceImpl implements EmployerService {
     @Autowired
     public EmployerServiceImpl(EmployerRepository employerRepository, ProvinceRepository provinceRepository) {
         this.employerRepository = employerRepository;
-        this.provinceRepository= provinceRepository;
+        this.provinceRepository = provinceRepository;
     }
-
-
 
     @Override
     public EmployerDtoOut create(EmployerDtoIn employerDtoIn) {
@@ -41,20 +39,16 @@ public class EmployerServiceImpl implements EmployerService {
         });
 
         // Check if the province exists
-        Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince()))
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
+        Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince())).orElseThrow(
+                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
 
-        Employer employer = employerRepository.save(Employer.builder()
-                .email(employerDtoIn.getEmail())
-                .name(employerDtoIn.getName())
-                .province(employerDtoIn.getProvince())
-                .description(employerDtoIn.getDescription())
-                .build());
+        Employer employer = employerRepository
+                .save(Employer.builder().email(employerDtoIn.getEmail()).name(employerDtoIn.getName())
+                        .province(employerDtoIn.getProvince()).description(employerDtoIn.getDescription()).build());
 
         // Sử dụng phương thức from để chuyển đổi entity sang DTO
         return EmployerDtoOut.from(employer);
     }
-
 
     @Override
     public UpdateEmployerDtoOut update(Long id, EmployerDtoIn employerDtoIn) {
@@ -63,8 +57,8 @@ public class EmployerServiceImpl implements EmployerService {
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
 
         // Check if the province exists
-        Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince()))
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
+        Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince())).orElseThrow(
+                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
 
         employer.setEmail(employerDtoIn.getEmail());
         employer.setName(employerDtoIn.getName());
@@ -86,7 +80,7 @@ public class EmployerServiceImpl implements EmployerService {
         return EmployerDtoOut.from(employer);
     }
 
-    /*Copy from sample projects*/
+    /* Copy from sample projects */
     @Override
     public PageDtoOut<EmployerDtoOut> list(PageDtoIn pageDtoIn) {
         Page<Employer> employers = this.employerRepository
