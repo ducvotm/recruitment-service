@@ -1,22 +1,31 @@
 package vn.unigap.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.unigap.api.dto.in.EmployerDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
-import vn.unigap.api.dto.out.ApiResponse;
+
 import vn.unigap.api.dto.out.EmployerDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
-import vn.unigap.api.dto.out.UpdateEmployerDtoOut;
 import vn.unigap.api.service.EmployerService;
+import vn.unigap.common.controller.AbstractResponseController;
+
+import java.util.HashMap;
 
 @RestController
-@RequestMapping("/employer")
-@Tag()
-public class EmployerController {
+@RequestMapping(value = "/employer", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Employer", description = "Employer management")
+@SecurityRequirement(name = "Authorization")
+public class EmployerController extends AbstractResponseController {
 
     private final EmployerService employerService;
 
@@ -24,66 +33,58 @@ public class EmployerController {
         this.employerService = employerService;
     }
 
-    /* Create employer */
-    @PostMapping()
-    public ResponseEntity<ApiResponse<EmployerDtoOut>> createEmployer(@RequestBody EmployerDtoIn employerDtoIn) {
-        EmployerDtoOut createdEmployer = employerService.create(employerDtoIn);
-
-        // Build the success response using the static method
-        ApiResponse<EmployerDtoOut> response = ApiResponse.success(createdEmployer);
-
-        // Return the response
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
+    @Operation(summary = "Create new employer", responses = {
+            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseEmployer.class)))})
+    @PostMapping(value = "")
+    public ResponseEntity<?> create(@RequestBody EmployerDtoIn employerDtoIn) {
+        return responseEntity(() -> {
+            return this.employerService.create(employerDtoIn);
+        }, HttpStatus.CREATED);
     }
 
-    /* Update employer */
-    @PutMapping("{id}")
-    public ResponseEntity<ApiResponse<UpdateEmployerDtoOut>> updateEmployer(@PathVariable Long id,
-            @RequestBody @Valid EmployerDtoIn employerDtoIn) {
-        UpdateEmployerDtoOut updatedEmployer = employerService.update(id, employerDtoIn);
-
-        // Build the success response using the static method
-        ApiResponse<UpdateEmployerDtoOut> response = ApiResponse.success(updatedEmployer);
-
-        // Return the response
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    @Operation(summary = "Update employer's information", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "aplication/json", schema = @Schema(implementation = ResponseEmployer.class)))})
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid EmployerDtoIn employerDtoIn) {
+        return responseEntity(() -> {
+            return this.employerService.update(id, employerDtoIn);
+        });
     }
 
-    /* Get employer by id */
-    @GetMapping("{id}")
-    public ResponseEntity<ApiResponse<EmployerDtoOut>> getEmployerById(@PathVariable Long id) {
-        EmployerDtoOut gotEmployer = employerService.get(id);
-
-        // Build the success response using the static method
-        ApiResponse<EmployerDtoOut> response = ApiResponse.success(gotEmployer);
-
-        // Return the response
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    @Operation(summary = "Get employer by ID", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseEmployer.class)))})
+    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity<?> get(@PathVariable Long id) {
+        return responseEntity(() -> {
+            return this.employerService.get(id);
+        });
     }
 
-    /* Get list of employer */
-    @GetMapping()
-    public ResponseEntity<ApiResponse<PageDtoOut<EmployerDtoOut>>> getListOfEmployer(@Valid PageDtoIn pageDtoIn) {
-        PageDtoOut<EmployerDtoOut> listOfEmployer = employerService.list(pageDtoIn);
-
-        // Build the success response using the static method
-        ApiResponse<PageDtoOut<EmployerDtoOut>> response = ApiResponse.success(listOfEmployer);
-
-        // Return the response
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    @Operation(summary = "List all employers", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageEmployer.class)))})
+    @GetMapping(value = "", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity<?> list(@Valid PageDtoIn pageDtoIn) {
+        return responseEntity(() -> {
+            return this.employerService.list(pageDtoIn);
+        });
     }
 
-    /* Delete employer by id */
+    @Operation(summary = "Delete job", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class)))})
     @DeleteMapping("{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteEmployer(@PathVariable Long id) {
-        employerService.delete(id);
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        return responseEntity(() -> {
+            this.employerService.delete(id);
+            return new HashMap<>();
+        });
+    }
 
-        // Build the success response using the static method
-        ApiResponse<Void> response = ApiResponse.success(null);
+    // Internal Response classes for Swagger documentation
+    private static class ResponseEmployer extends vn.unigap.common.response.ApiResponse<EmployerDtoOut> {
+    }
 
-        // Return the response
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-
+    private static class ResponsePageEmployer
+            extends
+                vn.unigap.common.response.ApiResponse<PageDtoOut<EmployerDtoOut>> {
     }
 }
