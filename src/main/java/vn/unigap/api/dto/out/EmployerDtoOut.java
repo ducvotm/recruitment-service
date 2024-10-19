@@ -35,6 +35,6 @@ public class EmployerDtoOut {
     public static EmployerDtoOut from(Employer employer) {
         return EmployerDtoOut.builder().id(employer.getId()).email(employer.getEmail()).name(employer.getName())
                 .province(employer.getProvince()).description(employer.getDescription())
-                .created_at(employer.getCreated_at()).created_at(employer.getUpdated_at()).build();
+                .created_at(employer.getCreatedAt()).created_at(employer.getUpdatedAt()).build();
     }
 }

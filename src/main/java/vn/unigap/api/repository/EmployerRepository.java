@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmployerRepository extends JpaRepository<Employer, Long> {
+
     Optional<Employer> findByEmail(String email);
     Page<Employer> findAll(Pageable pageable);
 

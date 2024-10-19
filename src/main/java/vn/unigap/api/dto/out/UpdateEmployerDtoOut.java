@@ -33,6 +33,6 @@ public class UpdateEmployerDtoOut {
     public static UpdateEmployerDtoOut from(Employer employer) {
         return UpdateEmployerDtoOut.builder().id(employer.getId()).email(employer.getEmail()).name(employer.getName())
                 .province(employer.getProvince()).description(employer.getDescription())
-                .updated_at(employer.getUpdated_at()).build();
+                .updated_at(employer.getUpdatedAt()).build();
     }
 }
