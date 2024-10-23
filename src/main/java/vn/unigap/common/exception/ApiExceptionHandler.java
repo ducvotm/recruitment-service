@@ -1,8 +1,12 @@
 package vn.unigap.common.exception;
 
+import io.sentry.Sentry;
+import io.sentry.SentryEvent;
+import io.sentry.SentryLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -63,5 +67,16 @@ public class ApiExceptionHandler {
         ApiResponse<Object> apiResponse = ApiResponse.builder().errorCode(errorCode).statusCode(status.value())
                 .message(msg).build();
         return new ResponseEntity<>(apiResponse, status);
+    }
+
+    /*Sentry part*/
+    private void captureException(Exception e, HttpStatusCode status) {
+        SentryEvent event = new SentryEvent(e);
+        if (status.is5xxServerError()) {
+            event.setLevel(SentryLevel.ERROR);
+        } else {
+            event.setLevel(SentryLevel.INFO);
+        }
+        Sentry.captureEvent(event);
     }
 }
