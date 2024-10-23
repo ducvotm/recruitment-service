@@ -24,6 +24,7 @@ management:
     web:
       exposure:
         include: '*'
+
 logging:
   level:
     root: INFO
@@ -53,4 +54,4 @@ reqres:
   url: https://reqres.in
 ---
 sentry:
-  dsn: https://xxx@xxx.ingest.sentry.io/xxx
+  dsn: https://575664acf7206cdb52d2e3b725dd0acb@o4508170945691648.ingest.us.sentry.io/4508170958012417

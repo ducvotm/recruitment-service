@@ -10,24 +10,28 @@ services:
       REDIS_PASSWORD: Redis@123
     command: ["redis-server", "--requirepass", "Redis@123"]
 
-  redis-exporter:
-    image: oliver006/redis_exporter:latest
-    container_name: redis-exporter
-    environment:
-      - REDIS_URL=redis://:Redis@123@redis-server:6379
-    ports:
-      - "9121:9121"
-
   grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
+    image: grafana/grafana:10.0.3-ubuntu
     ports:
-      - "3000:3000"
+      - '3000:3000'
+    volumes:
+      - grafana:/var/lib/grafana
+    restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
 
   prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    restart: always
+    image: prom/prometheus:v2.46.0
+    ports:
+      - '9090:9090'
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    network_mode: "host"  # Host network mode
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: on-failure
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  grafana:
+    driver: local
