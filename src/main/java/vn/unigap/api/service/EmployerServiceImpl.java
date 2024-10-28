@@ -12,10 +12,10 @@ import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.out.EmployerDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.dto.out.UpdateEmployerDtoOut;
-import vn.unigap.api.entity.Employer;
-import vn.unigap.api.entity.Province;
-import vn.unigap.api.repository.EmployerRepository;
-import vn.unigap.api.repository.ProvinceRepository;
+import vn.unigap.api.entity.jpa.Employer;
+import vn.unigap.api.entity.jpa.Province;
+import vn.unigap.api.repository.jpa.EmployerRepository;
+import vn.unigap.api.repository.jpa.ProvinceRepository;
 import vn.unigap.common.errorcode.ErrorCode;
 import vn.unigap.common.exception.ApiException;
 

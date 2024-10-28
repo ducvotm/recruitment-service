@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import vn.unigap.api.dto.in.MetricsByDateDtoIn;
 import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 import vn.unigap.api.dto.out.ChartDtoOut;
-import vn.unigap.api.repository.EmployerRepository;
-import vn.unigap.api.repository.JobRepository;
+import vn.unigap.api.repository.jpa.EmployerRepository;
+import vn.unigap.api.repository.jpa.JobRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

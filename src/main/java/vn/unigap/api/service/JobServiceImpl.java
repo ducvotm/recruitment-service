@@ -14,11 +14,11 @@ import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.out.JobDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
-import vn.unigap.api.entity.Job;
-import vn.unigap.api.repository.EmployerRepository;
-import vn.unigap.api.repository.FieldRepository;
-import vn.unigap.api.repository.JobRepository;
-import vn.unigap.api.repository.ProvinceRepository;
+import vn.unigap.api.entity.jpa.Job;
+import vn.unigap.api.repository.jpa.EmployerRepository;
+import vn.unigap.api.repository.jpa.FieldRepository;
+import vn.unigap.api.repository.jpa.JobRepository;
+import vn.unigap.api.repository.jpa.ProvinceRepository;
 
 @Service
 public class JobServiceImpl implements JobService {
