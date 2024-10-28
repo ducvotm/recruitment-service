@@ -1,12 +1,11 @@
 package vn.unigap.api.dto.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import vn.unigap.api.entity.Job;
+import vn.unigap.api.entity.jpa.Job;
 
 import java.time.LocalDateTime;
 

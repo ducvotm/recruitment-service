@@ -11,9 +11,9 @@ import vn.unigap.api.dto.in.UpdateUserDtoIn;
 import vn.unigap.api.dto.in.UserDtoIn;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.dto.out.UserDtoOut;
-import vn.unigap.api.entity.User;
-import vn.unigap.api.repository.UserRepository;
-import vn.unigap.common.CommonFunction;
+import vn.unigap.api.entity.jpa.User;
+import vn.unigap.api.repository.jpa.UserRepository;
+import vn.unigap.common.Common;
 import vn.unigap.common.errorcode.ErrorCode;
 import vn.unigap.common.exception.ApiException;
 
@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
 
         user.setFirstName(updateUserDtoIn.getFirstName());
         user.setLastName(updateUserDtoIn.getLastName());
-        user.setUpdatedDate(CommonFunction.currentTime());
+        user.setUpdatedDate(Common.currentTime());
         user = userRepository.save(user);
 
         return UserDtoOut.from(user);

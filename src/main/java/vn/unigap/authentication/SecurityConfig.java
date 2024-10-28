@@ -7,6 +7,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -34,6 +35,9 @@ import org.springframework.web.cors.CorsConfiguration;
 public class SecurityConfig {
     private final CustomAuthEntryPoint customAuthEntryPoint;
 
+    @Value("${JWT_SECRET_KEY}") // Fetch the secret key from environment variables
+    private String jwtSecretKey;
+
     @Autowired
     public SecurityConfig(CustomAuthEntryPoint customAuthEntryPoint) {
         this.customAuthEntryPoint = customAuthEntryPoint;
@@ -43,8 +47,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
-                .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
-                // .cors(cfg -> cfg.disable())
+                        .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
                 .csrf(cfg -> cfg.disable())
                 .authorizeHttpRequests((requests) -> requests.requestMatchers("/swagger-ui.html", "/swagger-ui/**",
                         "/v3/api-docs/**", "/auth/login", "/actuator/**").permitAll().anyRequest().authenticated())
@@ -75,6 +78,8 @@ public class SecurityConfig {
     @Bean
     public JwtEncoder jwtEncoder() {
         try {
+            // Use the secret key as needed for your JWT encoding logic
+            // If you are using RSA, you might not need the secret key here
             return new NimbusJwtEncoder(new ImmutableJWKSet<>(
                     new JWKSet(new RSAKey.Builder(readPublicKey(new ClassPathResource("public.pem")))
                             .privateKey(readPrivateKey(new ClassPathResource("private.pem"))).build())));
@@ -91,11 +96,9 @@ public class SecurityConfig {
 
     private static RSAPublicKey readPublicKey(Resource resource) throws Exception {
         return RsaKeyConverters.x509().convert(resource.getInputStream());
-
     }
 
     private static RSAPrivateKey readPrivateKey(Resource resource) throws Exception {
         return RsaKeyConverters.pkcs8().convert(resource.getInputStream());
-
     }
 }
