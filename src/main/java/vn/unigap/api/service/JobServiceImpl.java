@@ -14,11 +14,11 @@ import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.out.JobDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
-import vn.unigap.api.entity.Job;
-import vn.unigap.api.repository.EmployerRepository;
-import vn.unigap.api.repository.FieldRepository;
-import vn.unigap.api.repository.JobRepository;
-import vn.unigap.api.repository.ProvinceRepository;
+import vn.unigap.api.entity.jpa.Job;
+import vn.unigap.api.repository.jpa.EmployerRepository;
+import vn.unigap.api.repository.jpa.FieldRepository;
+import vn.unigap.api.repository.jpa.JobRepository;
+
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -26,16 +26,14 @@ public class JobServiceImpl implements JobService {
     private final JobRepository jobRepository;
     private final EmployerRepository employerRepository;
     private final FieldRepository fieldRepository;
-    private final ProvinceRepository provinceRepository;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
     public JobServiceImpl(JobRepository jobRepository, EmployerRepository employerRepository,
-            FieldRepository fieldRepository, ProvinceRepository provinceRepository, JdbcTemplate jdbcTemplate) {
+            FieldRepository fieldRepository, JdbcTemplate jdbcTemplate) {
         this.jobRepository = jobRepository;
         this.employerRepository = employerRepository;
         this.fieldRepository = fieldRepository;
-        this.provinceRepository = provinceRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -124,13 +122,13 @@ public class JobServiceImpl implements JobService {
             }
         }
 
-        // Check if the provinces exist
+ /*       // Check if the provinces exist
         String[] provinceIdsArray = jobDtoIn.getProvinceIds().split("-");
         for (String provinceId : provinceIdsArray) {
             if (!provinceRepository.existsById(Long.valueOf(provinceId))) {
                 throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST,
                         "The province with ID " + provinceId + " does not exist");
             }
-        }
+        }*/
     }
 }
