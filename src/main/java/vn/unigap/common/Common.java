@@ -5,7 +5,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.UUID;
 
-public class CommonFunction {
+public class Common {
     public static String uuid() {
         return UUID.randomUUID().toString();
     }
