@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
@@ -35,9 +36,6 @@ import org.springframework.web.cors.CorsConfiguration;
 public class SecurityConfig {
     private final CustomAuthEntryPoint customAuthEntryPoint;
 
-    @Value("${JWT_SECRET_KEY}") // Fetch the secret key from environment variables
-    private String jwtSecretKey;
-
     @Autowired
     public SecurityConfig(CustomAuthEntryPoint customAuthEntryPoint) {
         this.customAuthEntryPoint = customAuthEntryPoint;
@@ -50,7 +48,7 @@ public class SecurityConfig {
                         .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
                 .csrf(cfg -> cfg.disable())
                 .authorizeHttpRequests((requests) -> requests.requestMatchers("/swagger-ui.html", "/swagger-ui/**",
-                        "/v3/api-docs/**", "/auth/login", "/actuator/**").permitAll().anyRequest().authenticated())
+                        "/v3/api-docs/**", "/auth/login", "/auth/validateAndRefreshToken", "/actuator/**").permitAll().anyRequest().authenticated())
                 .oauth2ResourceServer(configurer -> {
                     configurer.authenticationEntryPoint(customAuthEntryPoint);
                     configurer.jwt(jwtConfigurer -> {
@@ -92,6 +90,18 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        try {
+            // Load the public key for decoding
+            RSAPublicKey publicKey = readPublicKey(new ClassPathResource("public.pem"));
+            return NimbusJwtDecoder.withPublicKey(publicKey).build();
+        } catch (Exception e) {
+            log.error("Error", e);
+            throw new RuntimeException(e);
+        }
     }
 
     private static RSAPublicKey readPublicKey(Resource resource) throws Exception {
