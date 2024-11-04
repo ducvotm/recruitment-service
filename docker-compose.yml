@@ -1,14 +1,36 @@
-version: '3'
-
 services:
-  redis:
-    image: redis:latest
-    container_name: redis-server
+  mysql-db:
+    image: mysql:8.0.33
+    environment:
+      MYSQL_ROOT_PASSWORD: Admin@123
+      #      MYSQL_DATABASE: auth
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
     ports:
-      - "6379:6379"
+      - '3306:3306'
+    volumes:
+      - mysql-db:/var/lib/mysql
+    restart: on-failure
+
+  mongodb:
+    image: mongodb/mongodb-community-server:7.0.1-ubuntu2204
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: Mongo@123
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb:/data/db
+    restart: on-failure
+
+  redis:
+    image: redis:7.2.1-alpine3.18
     environment:
       REDIS_PASSWORD: Redis@123
-    command: ["redis-server", "--requirepass", "Redis@123"]
+    ports:
+      - '6379:6379'
+    restart: on-failure
+    command: /bin/sh -c "redis-server --requirepass $${REDIS_PASSWORD}"
 
   grafana:
     image: grafana/grafana:10.0.3-ubuntu
@@ -33,5 +55,9 @@ services:
       - "host.docker.internal:host-gateway"
 
 volumes:
+  mongodb:
+    driver: local
   grafana:
+    driver: local
+  mysql-db:
     driver: local

@@ -13,5 +13,4 @@ public class AuthLoginDtoOut {
 
     private String accessToken;
 
-    private String refreshToken;
 }

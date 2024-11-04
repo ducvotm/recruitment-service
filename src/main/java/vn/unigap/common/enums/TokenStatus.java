@@ -13,4 +13,3 @@ public enum TokenStatus {
         return status;
     }
 }
-

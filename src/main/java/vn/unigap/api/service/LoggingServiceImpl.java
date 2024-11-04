@@ -58,7 +58,7 @@ public class LoggingServiceImpl implements LoggingService {
 
     @Override
     public void logResponse(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                            Object body) {
+            Object body) {
         if (httpServletRequest.getAttribute(Constants.REQUEST_RESPONSE_ATTRIBUTE) == null) {
             // case when request not passed to controller because unauthenticated. So we
             // must recreate

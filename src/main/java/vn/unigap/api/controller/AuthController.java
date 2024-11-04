@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.unigap.api.dto.in.AuthLoginDtoIn;
-import vn.unigap.api.dto.in.TokenRefreshRequestDtoIn;
 import vn.unigap.api.dto.out.AuthLoginDtoOut;
 import vn.unigap.api.service.AuthService;
 import vn.unigap.common.controller.AbstractResponseController;
@@ -40,18 +39,22 @@ public class AuthController extends AbstractResponseController {
         });
     }
 
-
-/*    @Operation(summary = "Validate and Refresh Access Token", responses = {@ApiResponse(responseCode = "200", content = {
-            @Content(mediaType = "application/json", schema = @Schema(implementation = AuthLoginDtoOut.class))})})
-    @PostMapping(value = "/validateAndRefreshToken")
-    public ResponseEntity<AuthLoginDtoOut> validateAndRefreshToken(@RequestBody @Valid TokenRefreshRequestDtoIn tokenRefreshRequestDtoIn) {
-        AuthLoginDtoOut response = authService.validateAndRefreshAccessToken(tokenRefreshRequestDtoIn.getAccessToken(), tokenRefreshRequestDtoIn.getRefreshToken());
-        return ResponseEntity.ok(response);
-    }*/
+    /*
+     * @Operation(summary = "Validate and Refresh Access Token", responses =
+     * {@ApiResponse(responseCode = "200", content = {
+     * 
+     * @Content(mediaType = "application/json", schema = @Schema(implementation =
+     * AuthLoginDtoOut.class))})})
+     * 
+     * @PostMapping(value = "/validateAndRefreshToken") public
+     * ResponseEntity<AuthLoginDtoOut> validateAndRefreshToken(@RequestBody @Valid
+     * TokenRefreshRequestDtoIn tokenRefreshRequestDtoIn) { AuthLoginDtoOut response
+     * = authService.validateAndRefreshAccessToken(tokenRefreshRequestDtoIn.
+     * getAccessToken(), tokenRefreshRequestDtoIn.getRefreshToken()); return
+     * ResponseEntity.ok(response); }
+     */
 
     private static class ResponseLogin extends vn.unigap.common.response.ApiResponse<AuthLoginDtoOut> {
     }
 
-    private static class ResponseRefresh extends vn.unigap.common.response.ApiResponse<AuthLoginDtoOut> {
-    }
 }
