@@ -10,7 +10,7 @@ spring:
     url: jdbc:mysql://localhost:3306/job_db
     driverClassName: com.mysql.cj.jdbc.Driver
     username: root
-    password: n
+    password: Admin@123
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:

@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(UserDetailsService userDetailsService, JwtDecoder jwtDecoder, JwtEncoder jwtEncoder,
-                           PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder) {
         this.userDetailsService = userDetailsService;
         this.jwtDecoder = jwtDecoder;
         this.jwtEncoder = jwtEncoder;
@@ -39,52 +39,49 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthLoginDtoOut login(AuthLoginDtoIn loginDtoIn) {
-        UserDetails userDetails = getUserDetails(loginDtoIn.getUsername());
-        validatePassword(loginDtoIn.getPassword(), userDetails.getPassword());
+        UserDetails userDetails;
+        try {
+            userDetails = this.userDetailsService.loadUserByUsername(loginDtoIn.getUsername());
+        } catch (UsernameNotFoundException e) {
+            throw new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "invalid credentials");
+        }
 
-        // Set token status to INIT when generating tokens
-        return AuthLoginDtoOut.builder()
-                .accessToken(grantToken(userDetails.getUsername(), TokenStatus.INIT, 15))
-                .refreshToken(grantToken(userDetails.getUsername(), TokenStatus.INIT, 30 * 24 * 60)) // 30 days
-                .build();
+        if (!passwordEncoder.matches(loginDtoIn.getPassword(), userDetails.getPassword())) {
+            throw new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "invalid credentials");
+        }
+
+        return AuthLoginDtoOut.builder().accessToken(grantAccessToken(userDetails.getUsername())).build();
     }
 
-/*    @Override
-    public AuthLoginDtoOut validateAndRefreshAccessToken(String accessToken, String refreshToken) {
-        if (accessToken == null || refreshToken == null) {
-            log.error("Access token or refresh token is null");
-            throw new ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED, "Access token or refresh token is null");
-        }
-
-        try {
-            // Validate the access token
-            Jwt decodedAccessToken = jwtDecoder.decode(accessToken);
-            
-            // Check if the access token is expired
-            Instant expiration = decodedAccessToken.getExpiresAt();
-            if (expiration != null && Instant.now().isAfter(expiration)) {
-                // Access token is expired, validate the refresh token
-                String username = validateRefreshToken(refreshToken); // Validate refresh token
-                
-                // Generate a new access token
-                String newAccessToken = grantToken(username, TokenStatus.USED, 15); // 15 minutes expiry
-                
-                return AuthLoginDtoOut.builder()
-                        .accessToken(newAccessToken)
-                        .refreshToken(refreshToken) // Return the same refresh token
-                        .build();
-            }
-            
-            // If access token is still valid, return it without refreshing
-            return AuthLoginDtoOut.builder()
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .build();
-        } catch (JwtException e) {
-            log.error("Invalid access token: ", e);
-            throw new ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED, "Invalid access token");
-        }
-    }*/
+    /*
+     * @Override public AuthLoginDtoOut validateAndRefreshAccessToken(String
+     * accessToken, String refreshToken) { if (accessToken == null || refreshToken
+     * == null) { log.error("Access token or refresh token is null"); throw new
+     * ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED,
+     * "Access token or refresh token is null"); }
+     * 
+     * try { // Validate the access token Jwt decodedAccessToken =
+     * jwtDecoder.decode(accessToken);
+     * 
+     * // Check if the access token is expired Instant expiration =
+     * decodedAccessToken.getExpiresAt(); if (expiration != null &&
+     * Instant.now().isAfter(expiration)) { // Access token is expired, validate the
+     * refresh token String username = validateRefreshToken(refreshToken); //
+     * Validate refresh token
+     * 
+     * // Generate a new access token String newAccessToken = grantToken(username,
+     * TokenStatus.USED, 15); // 15 minutes expiry
+     * 
+     * return AuthLoginDtoOut.builder() .accessToken(newAccessToken)
+     * .refreshToken(refreshToken) // Return the same refresh token .build(); }
+     * 
+     * // If access token is still valid, return it without refreshing return
+     * AuthLoginDtoOut.builder() .accessToken(accessToken)
+     * .refreshToken(refreshToken) .build(); } catch (JwtException e) {
+     * log.error("Invalid access token: ", e); throw new
+     * ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED,
+     * "Invalid access token"); } }
+     */
 
     private UserDetails getUserDetails(String username) {
         try {
@@ -102,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private String validateRefreshToken(String refreshToken) {
+/*    private String validateRefreshToken(String refreshToken) {
         try {
             Jwt decodedJwt = jwtDecoder.decode(refreshToken); // Decode and validate using public key
 
@@ -119,29 +116,21 @@ public class AuthServiceImpl implements AuthService {
             log.error("Invalid refresh token: ", e);
             throw new ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
-    }
+    }*/
 
-    private String grantToken(String username, TokenStatus status, long expiryMinutes) {
-        long iat = Instant.now().getEpochSecond();
-        long exp = iat + Duration.ofMinutes(expiryMinutes).toSeconds();
+    private String grantAccessToken(String username) {
+        long iat = System.currentTimeMillis() / 1000;
+        long exp = iat + Duration.ofHours(8).toSeconds();
 
-        JwtEncoderParameters parameters = JwtEncoderParameters.from(
-                JwsHeader.with(SignatureAlgorithm.RS256).build(),
-                JwtClaimsSet.builder()
-                        .subject(username)
-                        .issuedAt(Instant.ofEpochSecond(iat))
-                        .expiresAt(Instant.ofEpochSecond(exp))
-                        .claim("user_name", username)
-                        .claim("roles", List.of("ADMIN", "USER")) // Consider fetching roles dynamically
-                        .claim("token_status", status.getStatus()) // Attach token status as a claim
-                        .build()
-        );
-
+        JwtEncoderParameters parameters = JwtEncoderParameters.from(JwsHeader.with(SignatureAlgorithm.RS256).build(),
+                JwtClaimsSet.builder().subject(username).issuedAt(Instant.ofEpochSecond(iat))
+                        .expiresAt(Instant.ofEpochSecond(exp)).claim("user_name", username)
+                        .claim("scope", List.of("ADMIN")).build());
         try {
             return jwtEncoder.encode(parameters).getTokenValue();
         } catch (JwtEncodingException e) {
-            log.error("Error generating token for user {}: {}", username, e.getMessage());
-            throw new RuntimeException("Error generating token", e);
+            log.error("Error: ", e);
+            throw new RuntimeException(e);
         }
     }
 }

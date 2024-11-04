@@ -10,4 +10,4 @@ public class TokenRefreshRequest {
 
     @NotEmpty
     private String refreshToken;
-} 
+}

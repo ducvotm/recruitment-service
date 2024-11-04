@@ -7,7 +7,6 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -45,10 +44,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer
-                        .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
+                .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
                 .csrf(cfg -> cfg.disable())
-                .authorizeHttpRequests((requests) -> requests.requestMatchers("/swagger-ui.html", "/swagger-ui/**",
-                        "/v3/api-docs/**", "/auth/login", "/auth/validateAndRefreshToken", "/actuator/**").permitAll().anyRequest().authenticated())
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/auth/login",
+                                "/auth/validateAndRefreshToken", "/actuator/**")
+                        .permitAll().anyRequest().authenticated())
                 .oauth2ResourceServer(configurer -> {
                     configurer.authenticationEntryPoint(customAuthEntryPoint);
                     configurer.jwt(jwtConfigurer -> {
