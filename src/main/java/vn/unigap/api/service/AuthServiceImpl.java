@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-import io.jsonwebtoken.JwtException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +17,6 @@ import vn.unigap.api.dto.in.AuthLoginDtoIn;
 import vn.unigap.api.dto.out.AuthLoginDtoOut;
 import vn.unigap.common.errorcode.ErrorCode;
 import vn.unigap.common.exception.ApiException;
-import vn.unigap.common.enums.TokenStatus;
 
 @Service
 @Log4j2
@@ -99,24 +97,23 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-/*    private String validateRefreshToken(String refreshToken) {
-        try {
-            Jwt decodedJwt = jwtDecoder.decode(refreshToken); // Decode and validate using public key
-
-            // Check if the token has expired
-            Instant expiration = decodedJwt.getExpiresAt();
-            if (expiration != null && Instant.now().isAfter(expiration)) {
-                log.error("Refresh token has expired");
-                throw new ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED, "Refresh token has expired");
-            }
-
-            // Extract and return the username from claims
-            return decodedJwt.getSubject();
-        } catch (JwtException e) {
-            log.error("Invalid refresh token: ", e);
-            throw new ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED, "Invalid refresh token");
-        }
-    }*/
+    /*
+     * private String validateRefreshToken(String refreshToken) { try { Jwt
+     * decodedJwt = jwtDecoder.decode(refreshToken); // Decode and validate using
+     * public key
+     * 
+     * // Check if the token has expired Instant expiration =
+     * decodedJwt.getExpiresAt(); if (expiration != null &&
+     * Instant.now().isAfter(expiration)) { log.error("Refresh token has expired");
+     * throw new ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED,
+     * "Refresh token has expired"); }
+     * 
+     * // Extract and return the username from claims return
+     * decodedJwt.getSubject(); } catch (JwtException e) {
+     * log.error("Invalid refresh token: ", e); throw new
+     * ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED,
+     * "Invalid refresh token"); } }
+     */
 
     private String grantAccessToken(String username) {
         long iat = System.currentTimeMillis() / 1000;
