@@ -24,6 +24,7 @@ public class Employer {
 
     private Integer province;
 
+    @Column(length = 5000)
     private String description;
 
     @Column(name = "created_at", updatable = false)
