@@ -23,7 +23,7 @@ public class Job {
     private String title;
     private Integer quantity;
 
-    @Column(length = 1000)
+    @Column(length = 5000)
     private String description;
 
     private Integer salary;
