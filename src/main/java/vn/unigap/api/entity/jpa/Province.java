@@ -2,6 +2,7 @@ package vn.unigap.api.entity.jpa;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "job_province")
+@Table(name = "job_province", indexes = {@Index(columnList = "name")})
 public class Province {
     @Id
     private Integer id;
