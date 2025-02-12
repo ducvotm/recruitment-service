@@ -1,5 +1,6 @@
 package vn.unigap.api.dto.out;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
@@ -29,12 +30,17 @@ public class EmployerDtoOut {
     private Integer province;
     private String description;
     private LocalDateTime created_at;
-    private LocalDateTime update_at;
+    private LocalDateTime updated_at;
 
     // Covert DtoOut to Employer for saving
     public static EmployerDtoOut from(Employer employer) {
-        return EmployerDtoOut.builder().id(employer.getId()).email(employer.getEmail()).name(employer.getName())
-                .province(employer.getProvince()).description(employer.getDescription())
-                .created_at(employer.getCreatedAt()).created_at(employer.getUpdatedAt()).build();
+        return EmployerDtoOut.builder()
+                .id(employer.getId())
+                .email(employer.getEmail())
+                .name(employer.getName())
+                .province(employer.getProvince())
+                .description(employer.getDescription())
+                .created_at(employer.getCreatedAt())
+                .updated_at(employer.getUpdatedAt()).build();
     }
 }

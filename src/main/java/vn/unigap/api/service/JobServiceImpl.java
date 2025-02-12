@@ -46,9 +46,15 @@ public class JobServiceImpl implements JobService {
         validateEmployerFieldAndProvinceExistence(jobDtoIn);
 
         // Create and save the Job entity
-        Job job = jobRepository.save(Job.builder().title(jobDtoIn.getTitle()).employerId(jobDtoIn.getEmployerId())
-                .quantity(jobDtoIn.getQuantity()).description(jobDtoIn.getDescription()).fields(jobDtoIn.getFieldIds())
-                .provinces(jobDtoIn.getProvinceIds()).salary(jobDtoIn.getSalary()).expiredAt(jobDtoIn.getExpiredAt())
+        Job job = jobRepository.save(Job.builder()
+                .title(jobDtoIn.getTitle())
+                .employerId(jobDtoIn.getEmployerId())
+                .quantity(jobDtoIn.getQuantity())
+                .description(jobDtoIn.getDescription())
+                .fields(jobDtoIn.getFieldIds())
+                .provinces(jobDtoIn.getProvinceIds())
+                .salary(jobDtoIn.getSalary())
+                .expiredAt(jobDtoIn.getExpiredAt())
                 .build());
 
         // Convert Entity to DTO
@@ -66,17 +72,21 @@ public class JobServiceImpl implements JobService {
 
         // Update and save the Job entity
         Job updatedjob = jobRepository
-                .save(Job.builder().title(jobDtoIn.getTitle()).employerId(jobDtoIn.getEmployerId())
-                        .quantity(jobDtoIn.getQuantity()).description(jobDtoIn.getDescription())
-                        .fields(jobDtoIn.getFieldIds()).provinces(jobDtoIn.getProvinceIds())
-                        .salary(jobDtoIn.getSalary()).expiredAt(jobDtoIn.getExpiredAt()).build());
+                .save(Job.builder()
+                        .title(jobDtoIn.getTitle())
+                        .quantity(jobDtoIn.getQuantity())
+                        .description(jobDtoIn.getDescription())
+                        .fields(jobDtoIn.getFieldIds())
+                        .provinces(jobDtoIn.getProvinceIds())
+                        .salary(jobDtoIn.getSalary())
+                        .expiredAt(jobDtoIn.getExpiredAt()).build());
 
         // Convert updated entity to DTO
         return JobDtoOut.from(updatedjob);
     }
 
     @Override
-    @Cacheable(value = "jobs", key = "#id")
+    @Cacheable(value = "JOB", key = "#id")
     public JobDtoOut get(Long id) {
 
         System.out.println("Fetching job with id: " + id);
@@ -92,6 +102,7 @@ public class JobServiceImpl implements JobService {
 
     /* Copy from sample projects */
     @Override
+    @Cacheable(value = "JOBS", key = "#pageDtoIn")
     public PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn) {
 
         Page<Job> jobs = this.jobRepository.findAllJobsOrderedByExpiredAtAndEmployerName(

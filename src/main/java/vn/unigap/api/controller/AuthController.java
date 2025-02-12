@@ -39,8 +39,7 @@ public class AuthController extends AbstractResponseController {
         });
     }
 
-    /*
-     * @Operation(summary = "Validate and Refresh Access Token", responses =
+/*     * @Operation(summary = "Validate and Refresh Access Token", responses =
      * {@ApiResponse(responseCode = "200", content = {
      * 
      * @Content(mediaType = "application/json", schema = @Schema(implementation =
@@ -51,8 +50,10 @@ public class AuthController extends AbstractResponseController {
      * TokenRefreshRequestDtoIn tokenRefreshRequestDtoIn) { AuthLoginDtoOut response
      * = authService.validateAndRefreshAccessToken(tokenRefreshRequestDtoIn.
      * getAccessToken(), tokenRefreshRequestDtoIn.getRefreshToken()); return
-     * ResponseEntity.ok(response); }
-     */
+     * ResponseEntity.ok(response); }*/
+
+
+
 
     private static class ResponseLogin extends vn.unigap.common.response.ApiResponse<AuthLoginDtoOut> {
     }

@@ -7,10 +7,10 @@ server:
 ---
 spring:
   datasource:
-    url: jdbc:mysql://34.126.73.86:3306/job_db
-    driverClassName: com.mysql.cj.jdbc.Driver
-    username: username
-    password: your_password
+    url: jdbc:mysql://localhost:3306/job_db
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: Admin@123
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
@@ -24,15 +24,26 @@ management:
     web:
       exposure:
         include: '*'
+  endpoint:
+    health:
+      show-details: always  # Show detailed health check information
+  metrics:
+    enable:
+      process: true  # Enable process-related metrics like uptime
+  health:
+    db:
+      enabled: true  # Enable database health check
 logging:
   level:
     root: INFO
     org.springframework.security: DEBUG
+    com.fasterxml.jackson: DEBUG
+    org.springframework.web: DEBUG
 
 ---
 spring:
   cache:
-    cache-names: USER
+    cache-names: EMPLOYER, EMPLOYERS, JOB, JOBS, SEEKER, SEEKERS
     type: redis
     redis:
       time-to-live: PT2M

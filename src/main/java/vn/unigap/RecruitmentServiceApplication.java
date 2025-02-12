@@ -8,7 +8,7 @@ import org.springframework.cache.annotation.EnableCaching;
 org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
 org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class}
         )
-@EnableCaching
+/*@EnableCaching*/
 public class RecruitmentServiceApplication {
 
     public static void main(String[] args) {

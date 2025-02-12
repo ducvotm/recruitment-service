@@ -30,7 +30,8 @@ import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+
+//@EnableMethodSecurity
 @Log4j2
 public class SecurityConfig {
     private final CustomAuthEntryPoint customAuthEntryPoint;

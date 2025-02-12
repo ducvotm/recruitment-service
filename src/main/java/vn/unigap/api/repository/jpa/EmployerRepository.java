@@ -1,5 +1,6 @@
 package vn.unigap.api.repository.jpa;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -8,12 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.unigap.api.entity.jpa.Employer;
 
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public interface EmployerRepository extends JpaRepository<Employer, Long> {
-
     Optional<Employer> findByEmail(String email);
     Page<Employer> findAll(Pageable pageable);
 

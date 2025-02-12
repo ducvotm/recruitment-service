@@ -1,5 +1,18 @@
 services:
 
+  mysql-db:
+    image: mysql:8.0.33
+    environment:
+      MYSQL_ROOT_PASSWORD: Admin@123
+      #      MYSQL_DATABASE: auth
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql-db:/var/lib/mysql
+    restart: on-failure
+
   mongodb:
     image: mongodb/mongodb-community-server:7.0.1-ubuntu2204
     environment:

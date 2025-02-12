@@ -5,9 +5,10 @@ import vn.unigap.api.dto.out.AuthLoginDtoOut;
 
 public interface AuthService {
     AuthLoginDtoOut login(AuthLoginDtoIn loginDtoIn);
-    /*
-     * AuthLoginDtoOut validateAndRefreshAccessToken(String accessToken, String
-     * refreshToken);
-     */
+/*     AuthLoginDtoOut validateAndRefreshAccessToken(String accessToken, String
+     * refreshToken);*/
+
+
+
 
 }

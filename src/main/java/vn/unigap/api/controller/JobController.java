@@ -22,7 +22,7 @@ import vn.unigap.common.controller.AbstractResponseController;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping(value = "/jobs", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/job", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Job", description = "Job management")
 @SecurityRequirement(name = "Authorization")
 public class JobController extends AbstractResponseController {

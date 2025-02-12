@@ -53,7 +53,7 @@ public class EmployerController extends AbstractResponseController {
 
     @Operation(summary = "Get employer by ID", responses = {
             @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseEmployer.class)))})
-    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
+    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE) // To adjust the attribute tha has already set in the @RequestMapping
     public ResponseEntity<?> get(@PathVariable Long id) {
         return responseEntity(() -> {
             return this.employerService.get(id);
@@ -71,7 +71,7 @@ public class EmployerController extends AbstractResponseController {
 
     @Operation(summary = "Delete job", responses = {
             @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class)))})
-    @DeleteMapping("{id}")
+    @DeleteMapping(value = "{id}", consumes = MediaType.ALL_VALUE) //
     public ResponseEntity<?> delete(@PathVariable Long id) {
         return responseEntity(() -> {
             this.employerService.delete(id);
