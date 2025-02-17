@@ -14,5 +14,7 @@ import java.util.List;
 public class MetricsByDateDtoOut {
     private int numEmployer;
     private int numJob;
+    private int numSeeker;
+    private int numResume;
     private List<ChartDtoOut> chart;
 }

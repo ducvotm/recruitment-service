@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import vn.unigap.api.entity.jpa.Resume;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Data
@@ -41,10 +42,10 @@ public class ResumeDtoOut {
     private String provinces;
 
     @JsonProperty
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @JsonProperty
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     public static ResumeDtoOut from(Resume resume) {
         return ResumeDtoOut.builder()

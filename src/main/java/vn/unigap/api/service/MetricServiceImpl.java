@@ -11,6 +11,8 @@ import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 import vn.unigap.api.dto.out.ChartDtoOut;
 import vn.unigap.api.repository.jpa.EmployerRepository;
 import vn.unigap.api.repository.jpa.JobRepository;
+import vn.unigap.api.repository.jpa.ResumeRepository;
+import vn.unigap.api.repository.jpa.SeekerRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,23 +25,28 @@ public class MetricServiceImpl implements MetricService {
 
     private final EmployerRepository employerRepository;
     private final JobRepository jobRepository;
+    private final SeekerRepository seekerRepository;
+    private final ResumeRepository resumeRepository;
+
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository,
+    public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository, SeekerRepository seekerRepository, ResumeRepository resumeRepository,
             RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.employerRepository = employerRepository;
         this.jobRepository = jobRepository;
+        this.seekerRepository = seekerRepository;
+        this.resumeRepository = resumeRepository;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
     }
 
     @Override
     public MetricsByDateDtoOut getMetricsByDate(MetricsByDateDtoIn metricsByDateDtoIn) {
-        LocalDate fromDate = metricsByDateDtoIn.getFromDate();
-        LocalDate toDate = metricsByDateDtoIn.getToDate();
-        String cacheKey = "metrics:" + fromDate + " to " + toDate;
+        LocalDate from = metricsByDateDtoIn.getFromDate();
+        LocalDate to = metricsByDateDtoIn.getToDate();
+        String cacheKey = "metrics:" + from + " to " + to;
 
         // Try to get data from Redis cache first
         String cachedMetricsJson = redisTemplate.opsForValue().get(cacheKey);
@@ -52,21 +59,25 @@ public class MetricServiceImpl implements MetricService {
             }
         }
 
-        // If not in cache or parsing failed, calculate metrics
-        LocalDateTime startDay = LocalDateTime.of(fromDate, LocalTime.MIN);
-        LocalDateTime endDay = LocalDateTime.of(toDate, LocalTime.MAX);
+        LocalDateTime fromDateTime = LocalDateTime.of(from, LocalTime.MIN);
+        LocalDateTime toDateTime = LocalDateTime.of(to, LocalTime.MAX);
 
         // Initialize the chart data and counters
         List<ChartDtoOut> chart = new ArrayList<>();
         Integer totalEmployers = 0;
         Integer totalJobs = 0;
+        Integer totalSeekers = 0;
+        Integer totalResumes = 0;
 
         // Fetch employer and job counts grouped by date
-        List<Object[]> employerResults = employerRepository.findEmployerCountForDate(startDay, endDay);
-        List<Object[]> jobResults = jobRepository.findJobCountForDate(startDay, endDay);
+        List<Object[]> employerResults = employerRepository.countEmployerByDate(fromDateTime, toDateTime);
+        List<Object[]> jobResults = jobRepository.countJobByDate(fromDateTime, toDateTime);
+        List<Object[]> seekerResults = seekerRepository.countSeekerByDate(fromDateTime, toDateTime);
+        List<Object[]> resumeResults = resumeRepository.countResumeByDate(fromDateTime, toDateTime);
+
 
         // Process the results by iterating through the date range
-        for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plusDays(1)) {
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
             LocalDate finalDate = date;
 
             // Find the daily employer count
@@ -79,16 +90,27 @@ public class MetricServiceImpl implements MetricService {
                     .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
                     .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
 
+            Integer dailySeekerCount = seekerResults.stream()
+                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
+                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
+
+            Integer dailyResumeCount = resumeResults.stream()
+                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
+                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
+
+
             // Accumulate totals
             totalEmployers += dailyEmployerCount;
             totalJobs += dailyJobCount;
+            totalSeekers += dailySeekerCount;
+            totalResumes += dailyResumeCount;
 
             // Add data to the chart
-            chart.add(new ChartDtoOut(date, dailyEmployerCount, dailyJobCount));
+            chart.add(new ChartDtoOut(date, dailyEmployerCount, dailyJobCount, dailySeekerCount, dailyResumeCount));
         }
 
         // Create MetricsByDateDtoOut
-        MetricsByDateDtoOut metricsData = new MetricsByDateDtoOut(totalEmployers, totalJobs, chart);
+        MetricsByDateDtoOut metricsData = new MetricsByDateDtoOut(totalEmployers, totalJobs, totalSeekers, totalResumes, chart);
 
         // Save to Redis cache
         try {

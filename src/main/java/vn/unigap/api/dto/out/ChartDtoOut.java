@@ -16,5 +16,7 @@ public class ChartDtoOut {
     private LocalDate date;
     private Integer numEmployer;
     private Integer numJob;
+    private Integer numSeekers;
+    private Integer numResume;
 
 }
