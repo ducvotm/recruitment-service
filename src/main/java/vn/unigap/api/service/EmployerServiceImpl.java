@@ -99,7 +99,7 @@ public class EmployerServiceImpl implements EmployerService {
     public EmployerDtoOut get(Long id) {
         // Directly retrieve from repo on cache miss.
         Employer employer = employerRepository.findById(id)
-            .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
+            .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "employer not found"));
         return EmployerDtoOut.from(employer);
     }
 

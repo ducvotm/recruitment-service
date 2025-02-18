@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.out.JobDtoOut;
+import vn.unigap.api.dto.out.JobWithSeekersDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.service.JobService;
 import vn.unigap.common.controller.AbstractResponseController;
@@ -22,7 +23,7 @@ import vn.unigap.common.controller.AbstractResponseController;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping(value = "/job", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/job", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Job", description = "Job management")
 @SecurityRequirement(name = "Authorization")
 public class JobController extends AbstractResponseController {
@@ -78,6 +79,14 @@ public class JobController extends AbstractResponseController {
             this.jobService.delete(id);
             return new HashMap<>();
         });
+    }
+
+     @Operation(summary = "Get job and matching seekers", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = JobWithSeekersDtoOut.class))) })
+    @GetMapping(value = "/{id}/seekers", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity<?> getJobWithSeekers(@PathVariable Long id) {
+        return responseEntity(() -> jobService.getJobWithMatchingSeekers(id));
     }
 
     // Internal Response classes for Swagger documentation
