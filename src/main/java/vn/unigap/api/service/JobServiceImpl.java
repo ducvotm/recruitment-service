@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -50,10 +51,8 @@ public class JobServiceImpl implements JobService {
     @Override
     public JobDtoOut create(JobDtoIn jobDtoIn) {
 
-        // Validate if employer, the fields and provinces exist
         validateEmployerFieldAndProvinceExistence(jobDtoIn);
 
-        // Create and save the Job entity
         Job job = jobRepository.save(Job.builder()
                 .title(jobDtoIn.getTitle())
                 .employerId(jobDtoIn.getEmployerId())
@@ -65,20 +64,18 @@ public class JobServiceImpl implements JobService {
                 .expiredAt(jobDtoIn.getExpiredAt())
                 .build());
 
-        // Convert Entity to DTO
         return JobDtoOut.from(job);
+
     }
 
     @Override
     public JobDtoOut update(Long id, JobDtoIn jobDtoIn) {
-        // Fetch the existing job entity
+
         Job existingJob = jobRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Job not found"));
 
-        // Validate if the fields and provinces exist
         validateEmployerFieldAndProvinceExistence(jobDtoIn);
 
-        // Update and save the Job entity
         Job updatedjob = jobRepository
                 .save(Job.builder()
                         .title(jobDtoIn.getTitle())
@@ -97,18 +94,12 @@ public class JobServiceImpl implements JobService {
     @Cacheable(value = "JOB", key = "#id")
     public JobDtoOut get(Long id) {
 
-        System.out.println("Fetching job with id: " + id);
-
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Job not found"));
 
-        JobDtoOut jobDtoOut = JobDtoOut.from(job);
-        System.out.println("Returning jobDtoOut: " + jobDtoOut);
-
-        return jobDtoOut;
+        return JobDtoOut.from(job);
     }
 
-    /* Copy from sample projects */
     @Override
     @Cacheable(value = "JOBS", key = "#pageDtoIn")
     public PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn) {
@@ -212,6 +203,24 @@ public class JobServiceImpl implements JobService {
                 employer.getName(),
                 matchingSeekers
         );
+    }
+
+
+    private void validateEntityExists(Long id, JpaRepository<?, Long> repository, String entityName) {
+        if(!repository.existsById(id)) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The " + entityName + "does not exist");
+        }
+    }
+
+    private void validateIdsExist(String idsString, JpaRepository<?, Long> repository, String entityName) {
+
+        List<Long> ids = Arrays.stream(idsString.split("-"))
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        List<?> existingEntities = repository.findAllById(id);
+
+        if
     }
 
     private void validateEmployerFieldAndProvinceExistence(JobDtoIn jobDtoIn) {

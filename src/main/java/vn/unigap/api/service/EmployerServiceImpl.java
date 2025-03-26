@@ -52,20 +52,17 @@ public class EmployerServiceImpl implements EmployerService {
     @Override
     public EmployerDtoOut create(EmployerDtoIn employerDtoIn) {
 
-        // Check if the email already exists
         employerRepository.findByEmail(employerDtoIn.getEmail()).ifPresent(user -> {
             throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Email already exists");
         });
 
-        // Check if the province exists
         Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince())).orElseThrow(
                 () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
 
-        // Create and save Employer entity
         Employer employer = Employer.builder()
                 .email(employerDtoIn.getEmail())
                 .name(employerDtoIn.getName())
-                .province(employerDtoIn.getProvince()) // Ensure province is properly assigned
+                .province(employerDtoIn.getProvince())
                 .description(employerDtoIn.getDescription())
                 .build();
 
@@ -73,13 +70,12 @@ public class EmployerServiceImpl implements EmployerService {
 
         return EmployerDtoOut.from(employer);
     }
+
     @Override
     public UpdateEmployerDtoOut update(Long id, EmployerDtoIn employerDtoIn) {
-        // Check if the id is existing yet
-        Employer employer = employerRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
 
-        // Check if the province exists
+        Employer employer = findEmployerOrThrow(id);
+
         Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince())).orElseThrow(
                 () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
 
@@ -97,16 +93,16 @@ public class EmployerServiceImpl implements EmployerService {
     @Override
     @Cacheable(value = "EMPLOYER", key = "#id")
     public EmployerDtoOut get(Long id) {
-        // Directly retrieve from repo on cache miss.
-        Employer employer = employerRepository.findById(id)
-            .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "employer not found"));
+
+        Employer employer = findEmployerOrThrow(id);
+
         return EmployerDtoOut.from(employer);
     }
 
-    /* Copy from sample projects */
     @Override
     @Cacheable(value = "EMPLOYERS", key = "#pageDtoIn")
     public PageDtoOut<EmployerDtoOut> list(PageDtoIn pageDtoIn) {
+
         Page<Employer> employers = this.employerRepository
                 .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(), Sort.by("name").descending()));
 
@@ -117,8 +113,18 @@ public class EmployerServiceImpl implements EmployerService {
 
     @Override
     public void delete(Long id) {
-        Employer employer = employerRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
+
+        Employer employer = findEmployerOrThrow(id);
+
         employerRepository.delete(employer);
+    }
+
+    private Employer findEmployerOrThrow(Long id) {
+        return employerRepository.findById(id)
+                .orElseThrow(() -> new ApiException(
+                        ErrorCode.NOT_FOUND,
+                        HttpStatus.NOT_FOUND,
+                        "Employer not found with id: " + id
+                ));
     }
 }

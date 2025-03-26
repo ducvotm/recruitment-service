@@ -15,9 +15,10 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true) // Enables partial updates using toBuilder()
 @Table(name = "employer", indexes = {@Index(columnList = "email"), @Index(columnList = "created_at")})
 public class Employer implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE) // Prevents the builder from setting `id`
+    @Setter(AccessLevel.NONE)
     private Long id;
 
     @Column(unique = true)
