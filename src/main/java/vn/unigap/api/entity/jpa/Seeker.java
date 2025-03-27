@@ -37,7 +37,7 @@ public class Seeker {
     private Province provinceTable; // Correctly maps to the Province entity
 
     @Column(name = "province", insertable = false, updatable = false)
-    private Integer province;  // Stores only the raw province ID
+    private Long province;  // Stores only the raw province ID
 
     @Column(name = "created_at", updatable = false)
     @Setter(AccessLevel.NONE)

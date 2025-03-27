@@ -19,6 +19,7 @@ import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.entity.jpa.Job;
 import vn.unigap.api.entity.jpa.Employer;
+import vn.unigap.common.utils.ValidationUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +51,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public JobDtoOut create(JobDtoIn jobDtoIn) {
-
-        validateEmployerFieldAndProvinceExistence(jobDtoIn);
+        validateJobReferences(jobDtoIn);
 
         Job job = jobRepository.save(Job.builder()
                 .title(jobDtoIn.getTitle())
@@ -70,32 +70,28 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public JobDtoOut update(Long id, JobDtoIn jobDtoIn) {
+        validateJobReferences(jobDtoIn);
 
-        Job existingJob = jobRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Job not found"));
+        Job existingJob = findJob(id);
 
-        validateEmployerFieldAndProvinceExistence(jobDtoIn);
+        existingJob.setTitle(jobDtoIn.getTitle());
+        existingJob.setQuantity(jobDtoIn.getQuantity());
+        existingJob.setDescription(jobDtoIn.getDescription());
+        existingJob.setFields(jobDtoIn.getFieldIds());
+        existingJob.setProvinces(jobDtoIn.getProvinceIds());
+        existingJob.setSalary(jobDtoIn.getSalary());
+        existingJob.setExpiredAt(jobDtoIn.getExpiredAt());
+        existingJob.setEmployerId(jobDtoIn.getEmployerId());
 
-        Job updatedjob = jobRepository
-                .save(Job.builder()
-                        .title(jobDtoIn.getTitle())
-                        .quantity(jobDtoIn.getQuantity())
-                        .description(jobDtoIn.getDescription())
-                        .fields(jobDtoIn.getFieldIds())
-                        .provinces(jobDtoIn.getProvinceIds())
-                        .salary(jobDtoIn.getSalary())
-                        .expiredAt(jobDtoIn.getExpiredAt()).build());
+        Job updatedJob = jobRepository.save(existingJob);
 
-        // Convert updated entity to DTO
-        return JobDtoOut.from(updatedjob);
+        return JobDtoOut.from(updatedJob);
     }
 
     @Override
     @Cacheable(value = "JOB", key = "#id")
     public JobDtoOut get(Long id) {
-
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Job not found"));
+        Job job = findJob(id);
 
         return JobDtoOut.from(job);
     }
@@ -113,22 +109,17 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public void delete(Long id) {
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
+        Job job = findJob(id);
+
         jobRepository.delete(job);
     }
 
     @Override
     public JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id) {
-        // Retrieve the Job entity.
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Job not found"));
+        Job job = findJob(id);
 
-        // Retrieve resumes satisfying the salary condition.
         List<Resume> resumesBySalary = resumeRepository.findResumesBySalary(job.getSalary());
 
-        // Build job's field and province sets from the dash-separated string.
-        // Note: Fields and provinces are stored as strings like "1-3-5" etc.
         Set<String> jobFieldSet = Arrays.stream(job.getFields().split("-"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
@@ -136,7 +127,6 @@ public class JobServiceImpl implements JobService {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
 
-        // Filter resumes by checking that at least one field and one province match.
         List<Resume> matchingResumes = resumesBySalary.stream().filter(resume -> {
             Set<String> resumeFieldSet = Arrays.stream(resume.getFields().split("-"))
                     .filter(s -> !s.isEmpty())
@@ -149,8 +139,6 @@ public class JobServiceImpl implements JobService {
             return fieldMatches && provinceMatches;
         }).collect(Collectors.toList());
 
-        // Map resumes to a list of Seeker DTOs.
-        // Use resume.getSeekerId() to fetch the corresponding Seeker.
         List<SeekerDtoOut> matchingSeekers = matchingResumes.stream()
                 .map(resume -> {
                     Long seekerId = resume.getSeekerId(); // Use the seeker id from the resume entity.
@@ -162,7 +150,6 @@ public class JobServiceImpl implements JobService {
                 .distinct()
                 .collect(Collectors.toList());
 
-        // Map job's fields to DTOs using the jobFieldSet.
         List<FieldDtoOut> fieldDtos = jobFieldSet.stream()
                 .map(fieldIdStr -> {
                     Long fieldId = Long.valueOf(fieldIdStr);
@@ -174,7 +161,6 @@ public class JobServiceImpl implements JobService {
                 })
                 .collect(Collectors.toList());
 
-        // Map job's provinces to DTOs using the jobProvinceSet.
         List<ProvinceDtoOut> provinceDtos = jobProvinceSet.stream()
                 .map(provinceIdStr -> {
                     Long provinceId = Long.valueOf(provinceIdStr);
@@ -186,11 +172,9 @@ public class JobServiceImpl implements JobService {
                 })
                 .collect(Collectors.toList());
 
-        // Fetch the Employer entity using the job's employerId.
         Employer employer = employerRepository.findById(job.getEmployerId())
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Employer not found"));
 
-        // Build and return the JobWithSeekersDtoOut object with the desired fields.
         return new JobWithSeekersDtoOut(
                 job.getId(),
                 job.getTitle(),
@@ -205,47 +189,15 @@ public class JobServiceImpl implements JobService {
         );
     }
 
-
-    private void validateEntityExists(Long id, JpaRepository<?, Long> repository, String entityName) {
-        if(!repository.existsById(id)) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The " + entityName + "does not exist");
-        }
+    private Job findJob(Long id) {
+        return jobRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
     }
 
-    private void validateIdsExist(String idsString, JpaRepository<?, Long> repository, String entityName) {
-
-        List<Long> ids = Arrays.stream(idsString.split("-"))
-                .map(Long::valueOf)
-                .collect(Collectors.toList());
-
-        List<?> existingEntities = repository.findAllById(id);
-
-        if
+    private void validateJobReferences(JobDtoIn jobDtoIn) {
+        ValidationUtils.validateIdExists(jobDtoIn.getEmployerId(), employerRepository,"employer");
+        ValidationUtils.validateIdsExist(jobDtoIn.getFieldIds(), fieldRepository,"field");
+        ValidationUtils.validateIdsExist(jobDtoIn.getProvinceIds(), provinceRepository,"province");
     }
 
-    private void validateEmployerFieldAndProvinceExistence(JobDtoIn jobDtoIn) {
-
-        // Check if the employer exists
-        if (!employerRepository.existsById(jobDtoIn.getEmployerId())) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "The employer does not exist");
-        }
-
-        // Check if the fields exist
-        String[] fieldIdsArray = jobDtoIn.getFieldIds().split("-");
-        for (String fieldId : fieldIdsArray) {
-            if (!fieldRepository.existsById(Long.valueOf(fieldId))) {
-                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST,
-                        "The field with ID " + fieldId + " does not exist");
-            }
-        }
-
-        // Check if the provinces exist
-        String[] provinceIdsArray = jobDtoIn.getProvinceIds().split("-");
-        for (String provinceId : provinceIdsArray) {
-            if (!provinceRepository.existsById(Long.valueOf(provinceId))) {
-                throw new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST,
-                        "The province with ID " + provinceId + " does not exist");
-            }
-        }
-    }
 }

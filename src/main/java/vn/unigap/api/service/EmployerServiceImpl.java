@@ -22,12 +22,6 @@ import vn.unigap.api.repository.jpa.ProvinceRepository;
 import vn.unigap.common.errorcode.ErrorCode;
 import vn.unigap.common.exception.ApiException;
 
-import vn.unigap.api.dto.out.PageDtoOut;
-import org.springframework.data.domain.PageImpl;
-
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-
 @Service
 public class EmployerServiceImpl implements EmployerService {
 
@@ -74,7 +68,7 @@ public class EmployerServiceImpl implements EmployerService {
     @Override
     public UpdateEmployerDtoOut update(Long id, EmployerDtoIn employerDtoIn) {
 
-        Employer employer = findEmployerOrThrow(id);
+        Employer employer = findEmployer(id);
 
         Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince())).orElseThrow(
                 () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
@@ -94,7 +88,7 @@ public class EmployerServiceImpl implements EmployerService {
     @Cacheable(value = "EMPLOYER", key = "#id")
     public EmployerDtoOut get(Long id) {
 
-        Employer employer = findEmployerOrThrow(id);
+        Employer employer = findEmployer(id);
 
         return EmployerDtoOut.from(employer);
     }
@@ -114,12 +108,12 @@ public class EmployerServiceImpl implements EmployerService {
     @Override
     public void delete(Long id) {
 
-        Employer employer = findEmployerOrThrow(id);
+        Employer employer = findEmployer(id);
 
         employerRepository.delete(employer);
     }
 
-    private Employer findEmployerOrThrow(Long id) {
+    private Employer findEmployer(Long id) {
         return employerRepository.findById(id)
                 .orElseThrow(() -> new ApiException(
                         ErrorCode.NOT_FOUND,

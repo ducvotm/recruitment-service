@@ -5,8 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.in.ResumeDtoIn;
+import vn.unigap.api.dto.in.SeekerDtoIn;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.dto.out.ResumeDtoOut;
 import vn.unigap.api.entity.jpa.Field;
@@ -19,6 +21,7 @@ import vn.unigap.api.repository.jpa.ResumeRepository;
 import vn.unigap.api.repository.jpa.SeekerRepository;
 import vn.unigap.common.errorcode.ErrorCode;
 import vn.unigap.common.exception.ApiException;
+import vn.unigap.common.utils.ValidationUtils;
 
 @Service
 public class ResumeServiceImpl implements ResumeService {
@@ -37,14 +40,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     public ResumeDtoOut create(ResumeDtoIn resumeDtoIn) {
-        Seeker seeker = seekerRepository.findById(Long.valueOf(resumeDtoIn.getSeekerId())).orElseThrow(
-                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Seeker not found"));
-
-        Field field = fieldRepository.findById(Long.valueOf(resumeDtoIn.getFieldIds())).orElseThrow(
-                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Field not found"));
-
-        Province province = provinceRepository.findById(Long.valueOf(resumeDtoIn.getProvinceIds())).orElseThrow(
-                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province not found"));
+        validateResumeJobReferences(resumeDtoIn);
 
         Resume resume = Resume.builder()
                 .seekerId(resumeDtoIn.getSeekerId())
@@ -63,15 +59,9 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     public ResumeDtoOut update(Long id, ResumeDtoIn resumeDtoIn) {
+        validateResumeJobReferences(resumeDtoIn);
 
-        Field field = fieldRepository.findById(Long.valueOf(resumeDtoIn.getFieldIds())).orElseThrow(
-                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Field not found"));
-
-        Province province = provinceRepository.findById(Long.valueOf(resumeDtoIn.getProvinceIds())).orElseThrow(
-                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province not found"));
-
-        Resume resume = resumeRepository.findById(id)
-                .orElseThrow(()-> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Resume not found"));
+        Resume resume = findResume(id);
 
         resume.setCareerObj(resumeDtoIn.getCareerObj());
         resume.setTitle(resumeDtoIn.getTitle());
@@ -87,9 +77,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     @Cacheable(value = "RESUME", key = "#id")
     public ResumeDtoOut get(Long id) {
-
-        Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Resume not found"));
+        Resume resume = findResume(id);
 
         return ResumeDtoOut.from(resume);
     }
@@ -107,11 +95,19 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     public void delete(Long id) {
-        Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Resume not found"));
+        Resume resume = findResume(id);
 
         resumeRepository.delete(resume);
     }
 
+    private Resume findResume(Long id) {
+        return resumeRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Resume not found"));
+    }
 
+    private void validateResumeJobReferences(ResumeDtoIn resumeDtoIn) {
+        ValidationUtils.validateIdExists(resumeDtoIn.getSeekerId(), seekerRepository, "seeker");
+        ValidationUtils.validateIdsExist(resumeDtoIn.getFieldIds(), fieldRepository, "field");
+        ValidationUtils.validateIdsExist(resumeDtoIn.getProvinceIds(), provinceRepository, "province");
+    }
 }
