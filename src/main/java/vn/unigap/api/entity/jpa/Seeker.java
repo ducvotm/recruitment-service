@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true) // Enables partial updates using toBuilder()
+@Builder(toBuilder = true)
 @Table(name = "seeker", indexes = {@Index(columnList = "name"), @Index(columnList = "created_at")})
 public class Seeker {
 
@@ -22,22 +22,22 @@ public class Seeker {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Setter(AccessLevel.NONE) // Prevents the builder from setting `id`
+    @Setter(AccessLevel.NONE)
     private Long id;
 
     private String name;
 
-    @JsonFormat(pattern = DATE_FORMAT) // Ensures JSON serialization uses the correct format
+    @JsonFormat(pattern = DATE_FORMAT)
     private String birthday;
 
     private String address;
 
     @ManyToOne()
     @JoinColumn(name = "province")
-    private Province provinceTable; // Correctly maps to the Province entity
+    private Province provinceTable;
 
     @Column(name = "province", insertable = false, updatable = false)
-    private Long province;  // Stores only the raw province ID
+    private Long province;
 
     @Column(name = "created_at", updatable = false)
     @Setter(AccessLevel.NONE)

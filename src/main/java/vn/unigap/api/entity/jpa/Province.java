@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "job_province", indexes = {@Index(columnList = "name")})
 public class Province {
     @Id
-    private Integer id;
+    private Long id;
 
     private String name;
     private String slug;
