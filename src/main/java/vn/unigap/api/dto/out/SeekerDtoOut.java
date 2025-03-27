@@ -30,7 +30,7 @@ public class SeekerDtoOut {
     private String address;
 
     @JsonProperty
-    private Integer provinceId;
+    private Long provinceId;
 
     @JsonProperty
     private String provinceName;

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructo 1r
+@NoArgsConstructor
 @Builder
 public class EmployerDtoOut {
 

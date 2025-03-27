@@ -18,6 +18,7 @@ import vn.unigap.api.dto.out.SeekerDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.entity.jpa.Seeker;
 import vn.unigap.api.entity.jpa.Province;
+import vn.unigap.api.repository.jpa.JobRepository;
 import vn.unigap.api.repository.jpa.SeekerRepository;
 import vn.unigap.api.repository.jpa.ProvinceRepository;
 import vn.unigap.common.errorcode.ErrorCode;
@@ -25,6 +26,7 @@ import vn.unigap.common.exception.ApiException;
 
 import vn.unigap.api.dto.out.PageDtoOut;
 import org.springframework.data.domain.PageImpl;
+import vn.unigap.common.utils.ValidationUtils;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -35,6 +37,7 @@ public class SeekerServiceImpl implements SeekerService {
 
     private final SeekerRepository seekerRepository;
     private final ProvinceRepository provinceRepository;
+    private final JobRepository jobRepository;
 
     private RedisTemplate<String, Object> redisTemplate;
     private ObjectMapper objectMapper;
@@ -42,44 +45,37 @@ public class SeekerServiceImpl implements SeekerService {
 
     @Autowired
     public SeekerServiceImpl(SeekerRepository seekerRepository,
-                               ProvinceRepository provinceRepository,
-                               RedisTemplate<String, Object> redisTemplate,
-                               ObjectMapper objectMapper) {
+                             ProvinceRepository provinceRepository,
+                             RedisTemplate<String, Object> redisTemplate,
+                             ObjectMapper objectMapper, JobRepository jobRepository) {
         this.seekerRepository = seekerRepository;
         this.provinceRepository = provinceRepository;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
+        this.jobRepository = jobRepository;
     }
 
     @Override
-    public SeekerDtoOut create(SeekerDtoIn SeekerDtoIn) {
+    public SeekerDtoOut create(SeekerDtoIn seekerDtoIn) {
+        ValidationUtils.validateIdExists(seekerDtoIn.getProvinceId(), provinceRepository, "province");
 
-
-        // Check if the province exists
-        Province jobProvince = provinceRepository.findById(Long.valueOf(SeekerDtoIn.getProvinceId())).orElseThrow(
-                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
-
-        // Create and save Seeker entity
         Seeker seeker = Seeker.builder()
-                .name(SeekerDtoIn.getName())
-                .birthday(SeekerDtoIn.getBirthday())
-                .address(SeekerDtoIn.getAddress())
-                .province(SeekerDtoIn.getProvinceId())
+                .name(seekerDtoIn.getName())
+                .birthday(seekerDtoIn.getBirthday())
+                .address(seekerDtoIn.getAddress())
+                .province(seekerDtoIn.getProvinceId())
                 .build();
 
         seeker = seekerRepository.save(seeker);
 
         return SeekerDtoOut.from(seeker);
     }
+
     @Override
     public SeekerDtoOut update(Long id, UpdateSeekerDtoIn updateSeekerDtoIn) {
-        // Check if the id is existing yet
-        Seeker seeker = seekerRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "user not found"));
+        ValidationUtils.validateIdExists(updateSeekerDtoIn.getProvinceId(), provinceRepository, "province");
 
-        // Check if the province exists
-        Province jobProvince = provinceRepository.findById(Long.valueOf(updateSeekerDtoIn.getProvinceId())).orElseThrow(
-                () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
+        Seeker seeker = findSeeker(id);
 
         seeker.setName(updateSeekerDtoIn.getName());
         seeker.setBirthday(updateSeekerDtoIn.getBirthday());
@@ -88,20 +84,17 @@ public class SeekerServiceImpl implements SeekerService {
 
         seeker = seekerRepository.save(seeker);
 
-        // Sử dụng phương thức from để chuyển đổi entity sang DTO
         return SeekerDtoOut.from(seeker);
     }
 
     @Override
     @Cacheable(value = "SEEKER", key = "#id")
     public SeekerDtoOut get(Long id) {
-        // Directly retrieve from repo on cache miss.
-        Seeker seeker = seekerRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "seeker not found"));
+        Seeker seeker = findSeeker(id);
+
         return SeekerDtoOut.from(seeker);
     }
 
-    /* Copy from sample projects */
     @Override
     @Cacheable(value = "SEEKERS", key = "#pageDtoIn")
     public PageDtoOut<SeekerDtoOut> list(PageDtoIn pageDtoIn) {
@@ -109,14 +102,22 @@ public class SeekerServiceImpl implements SeekerService {
                 .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(), Sort.by("name").descending()));
 
         return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), seekers.getTotalElements(),
-                seekers.stream().map(SeekerDtoOut::from).toList());
+                seekers.stream()
+                        .map(SeekerDtoOut::from)
+                        .toList()
+        );
     }
 
 
     @Override
     public void delete(Long id) {
-        Seeker Seeker = seekerRepository.findById(id)
+        Seeker seeker = findSeeker(id);
+
+        seekerRepository.delete(seeker);
+    }
+
+    private Seeker findSeeker(Long id) {
+        return seekerRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "seeker not found"));
-        seekerRepository.delete(Seeker);
     }
 }

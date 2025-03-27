@@ -29,5 +29,5 @@ public class UpdateSeekerDtoIn {
     private String address;
 
     @NotNull
-    private Integer provinceId;
+    private Long provinceId;
 }
