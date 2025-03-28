@@ -81,13 +81,13 @@ public class JobController extends AbstractResponseController {
         });
     }
 
-     @Operation(summary = "Get job and matching seekers", responses = {
+/*     @Operation(summary = "Get job and matching seekers", responses = {
             @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = JobWithSeekersDtoOut.class))) })
     @GetMapping(value = "/{id}/seekers", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> getJobWithSeekers(@PathVariable Long id) {
         return responseEntity(() -> jobService.getJobWithMatchingSeekers(id));
-    }
+    }*/
 
     // Internal Response classes for Swagger documentation
     private static class ResponseJob extends vn.unigap.common.response.ApiResponse<JobDtoOut> {

@@ -12,6 +12,4 @@ public interface JobService {
     JobDtoOut get(Long id);
     PageDtoOut<JobDtoOut> list(PageDtoIn pageDtoIn);
     void delete(Long id);
-
-    JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id);
 }
