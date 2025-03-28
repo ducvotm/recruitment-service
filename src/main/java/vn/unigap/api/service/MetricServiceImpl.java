@@ -4,21 +4,31 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import vn.unigap.api.dto.in.MetricsByDateDtoIn;
-import vn.unigap.api.dto.out.MetricsByDateDtoOut;
-import vn.unigap.api.dto.out.ChartDtoOut;
+import vn.unigap.api.dto.out.*;
+import vn.unigap.api.entity.jpa.Employer;
+import vn.unigap.api.entity.jpa.Job;
+import vn.unigap.api.entity.jpa.Resume;
+import vn.unigap.api.entity.jpa.Seeker;
 import vn.unigap.api.repository.jpa.EmployerRepository;
 import vn.unigap.api.repository.jpa.JobRepository;
 import vn.unigap.api.repository.jpa.ResumeRepository;
 import vn.unigap.api.repository.jpa.SeekerRepository;
+import vn.unigap.common.errorcode.ErrorCode;
+import vn.unigap.common.exception.ApiException;
+import vn.unigap.common.utils.EntityDailyCount;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class MetricServiceImpl implements MetricService {
@@ -46,82 +56,145 @@ public class MetricServiceImpl implements MetricService {
     public MetricsByDateDtoOut getMetricsByDate(MetricsByDateDtoIn metricsByDateDtoIn) {
         LocalDate from = metricsByDateDtoIn.getFromDate();
         LocalDate to = metricsByDateDtoIn.getToDate();
-        String cacheKey = "metrics:" + from + " to " + to;
 
-        // Try to get data from Redis cache first
-        String cachedMetricsJson = redisTemplate.opsForValue().get(cacheKey);
-        if (cachedMetricsJson != null) {
-            try {
-                return objectMapper.readValue(cachedMetricsJson, MetricsByDateDtoOut.class);
-            } catch (JsonProcessingException e) {
-                // Log the error, but continue to recalculate the metrics
-                // logger.error("Error parsing cached metrics JSON", e);
-            }
-        }
+        validateDateRange(from, to);
 
         LocalDateTime fromDateTime = LocalDateTime.of(from, LocalTime.MIN);
         LocalDateTime toDateTime = LocalDateTime.of(to, LocalTime.MAX);
 
-        // Initialize the chart data and counters
-        List<ChartDtoOut> chart = new ArrayList<>();
-        Integer totalEmployers = 0;
-        Integer totalJobs = 0;
-        Integer totalSeekers = 0;
-        Integer totalResumes = 0;
+        List<EntityDailyCount> entityCount = fetchEntityCounts(fromDateTime, toDateTime);
 
-        // Fetch employer and job counts grouped by date
-        List<Object[]> employerResults = employerRepository.countEmployerByDate(fromDateTime, toDateTime);
-        List<Object[]> jobResults = jobRepository.countJobByDate(fromDateTime, toDateTime);
-        List<Object[]> seekerResults = seekerRepository.countSeekerByDate(fromDateTime, toDateTime);
-        List<Object[]> resumeResults = resumeRepository.countResumeByDate(fromDateTime, toDateTime);
+        List<ChartDtoOut> chart = processDailyMetrics(from, to, entityCount);
 
+        MetricsByDateDtoOut result = new MetricsByDateDtoOut(
+                entityCount.get(0).getTotalCount(),
+                entityCount.get(1).getTotalCount(),
+                entityCount.get(2).getTotalCount(),
+                entityCount.get(3).getTotalCount(),
+                chart
+        );
 
-        // Process the results by iterating through the date range
-        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
-            LocalDate finalDate = date;
-
-            // Find the daily employer count
-            Integer dailyEmployerCount = employerResults.stream()
-                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
-                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
-
-            // Find the daily job count
-            Integer dailyJobCount = jobResults.stream()
-                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
-                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
-
-            Integer dailySeekerCount = seekerResults.stream()
-                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
-                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
-
-            Integer dailyResumeCount = resumeResults.stream()
-                    .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(finalDate))
-                    .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
-
-
-            // Accumulate totals
-            totalEmployers += dailyEmployerCount;
-            totalJobs += dailyJobCount;
-            totalSeekers += dailySeekerCount;
-            totalResumes += dailyResumeCount;
-
-            // Add data to the chart
-            chart.add(new ChartDtoOut(date, dailyEmployerCount, dailyJobCount, dailySeekerCount, dailyResumeCount));
-        }
-
-        // Create MetricsByDateDtoOut
-        MetricsByDateDtoOut metricsData = new MetricsByDateDtoOut(totalEmployers, totalJobs, totalSeekers, totalResumes, chart);
-
-        // Save to Redis cache
-        try {
-            String json = objectMapper.writeValueAsString(metricsData);
-            redisTemplate.opsForValue().set(cacheKey, json);
-        } catch (JsonProcessingException e) {
-            // Log the error, but don't throw an exception
-            // logger.error("Error serializing metrics data to JSON", e);
-        }
-
-        return metricsData;
+        return  result;
     }
 
+/*    @Override
+    public JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id) {
+        Job job = findJob(id);
+
+        List<Resume> resumesBySalary = resumeRepository.findResumesBySalary(job.getSalary());
+
+        Set<String> jobFieldSet = Arrays.stream(job.getFields().split("-"))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+        Set<String> jobProvinceSet = Arrays.stream(job.getProvinces().split("-"))
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toSet());
+
+        List<Resume> matchingResumes = resumesBySalary.stream().filter(resume -> {
+            Set<String> resumeFieldSet = Arrays.stream(resume.getFields().split("-"))
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toSet());
+            Set<String> resumeProvinceSet = Arrays.stream(resume.getProvinces().split("-"))
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toSet());
+            boolean fieldMatches = resumeFieldSet.stream().anyMatch(jobFieldSet::contains);
+            boolean provinceMatches = resumeProvinceSet.stream().anyMatch(jobProvinceSet::contains);
+            return fieldMatches && provinceMatches;
+        }).collect(Collectors.toList());
+
+        List<SeekerDtoOut> matchingSeekers = matchingResumes.stream()
+                .map(resume -> {
+                    Long seekerId = resume.getSeekerId(); // Use the seeker id from the resume entity.
+                    Seeker seeker = seekerRepository.findById(seekerId)
+                            .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND,
+                                    "Seeker with ID " + seekerId + " not found"));
+                    return SeekerDtoOut.from(seeker);
+                })
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<FieldDtoOut> fieldDtos = jobFieldSet.stream()
+                .map(fieldIdStr -> {
+                    Long fieldId = Long.valueOf(fieldIdStr);
+                    var fieldEntity = fieldRepository.findById(fieldId)
+                            .orElseThrow(() -> new ApiException(
+                                    ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND,
+                                    "Field with ID " + fieldId + " not found"));
+                    return new FieldDtoOut(fieldEntity.getId(), fieldEntity.getName());
+                })
+                .collect(Collectors.toList());
+
+        List<ProvinceDtoOut> provinceDtos = jobProvinceSet.stream()
+                .map(provinceIdStr -> {
+                    Long provinceId = Long.valueOf(provinceIdStr);
+                    var provinceEntity = provinceRepository.findById(provinceId)
+                            .orElseThrow(() -> new ApiException(
+                                    ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND,
+                                    "Province with ID " + provinceId + " not found"));
+                    return new ProvinceDtoOut(provinceEntity.getId(), provinceEntity.getName());
+                })
+                .collect(Collectors.toList());
+
+        Employer employer = employerRepository.findById(job.getEmployerId())
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Employer not found"));
+
+        return new JobWithSeekersDtoOut(
+                job.getId(),
+                job.getTitle(),
+                job.getQuantity(),
+                fieldDtos,
+                provinceDtos,
+                job.getSalary(),
+                job.getExpiredAt(),
+                employer.getId(),
+                employer.getName(),
+                matchingSeekers
+        );
+    }*/
+
+    private void validateDateRange(LocalDate from, LocalDate to) {
+        if (from == null || to == null) {
+            throw new IllegalArgumentException("From date and to date cannot be null");
+        }
+
+        if (from.isAfter(to)) {
+            throw new IllegalArgumentException("From date must be before or equal to to date");
+        }
+    }
+
+    private List<EntityDailyCount> fetchEntityCounts(LocalDateTime from, LocalDateTime to) {
+        List<EntityDailyCount> entityCounts = new ArrayList<>();
+
+        entityCounts.add(new EntityDailyCount("employer",
+                employerRepository.countEmployerByDate(from, to), 0));
+
+        entityCounts.add(new EntityDailyCount("job",
+                jobRepository.countJobByDate(from, to), 0));
+
+        entityCounts.add(new EntityDailyCount("seeker",
+                seekerRepository.countSeekerByDate(from, to), 0));
+
+        entityCounts.add(new EntityDailyCount("resume",
+                resumeRepository.countResumeByDate(from, to), 0));
+
+        System.out.println(entityCounts);
+        return entityCounts;
+    }
+
+    private List<ChartDtoOut> processDailyMetrics(LocalDate from, LocalDate to, List<EntityDailyCount> entityCounts) {
+        List<ChartDtoOut> chart = new ArrayList<>();
+
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            LocalDate currentDate = date;
+
+            Integer employerCount = entityCounts.get(0).getDailyCount(currentDate);
+            Integer jobCount = entityCounts.get(1).getDailyCount(currentDate);
+            Integer seekerCount = entityCounts.get(2).getDailyCount(currentDate);
+            Integer resumeCount = entityCounts.get(3).getDailyCount(currentDate);
+
+            chart.add(new ChartDtoOut(currentDate, employerCount, jobCount, seekerCount, resumeCount));
+        }
+
+        return chart;
+    }
 }
