@@ -6,5 +6,5 @@ import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 
 public interface MetricService {
     MetricsByDateDtoOut getMetricsByDate(MetricsByDateDtoIn metricsByDateDtoIn);
-    /*JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id);*/
+    JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id);
 }
