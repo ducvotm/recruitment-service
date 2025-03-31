@@ -1,6 +1,5 @@
 package vn.unigap.api.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,10 +12,7 @@ import vn.unigap.api.entity.jpa.Employer;
 import vn.unigap.api.entity.jpa.Job;
 import vn.unigap.api.entity.jpa.Resume;
 import vn.unigap.api.entity.jpa.Seeker;
-import vn.unigap.api.repository.jpa.EmployerRepository;
-import vn.unigap.api.repository.jpa.JobRepository;
-import vn.unigap.api.repository.jpa.ResumeRepository;
-import vn.unigap.api.repository.jpa.SeekerRepository;
+import vn.unigap.api.repository.jpa.*;
 import vn.unigap.common.errorcode.ErrorCode;
 import vn.unigap.common.exception.ApiException;
 import vn.unigap.common.utils.EntityDailyCount;
@@ -37,17 +33,21 @@ public class MetricServiceImpl implements MetricService {
     private final JobRepository jobRepository;
     private final SeekerRepository seekerRepository;
     private final ResumeRepository resumeRepository;
+    private final FieldRepository fieldRepository;
+    private final ProvinceRepository provinceRepository;
 
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository, SeekerRepository seekerRepository, ResumeRepository resumeRepository,
-            RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+            RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, FieldRepository fieldRepository, ProvinceRepository provinceRepository) {
         this.employerRepository = employerRepository;
         this.jobRepository = jobRepository;
         this.seekerRepository = seekerRepository;
         this.resumeRepository = resumeRepository;
+        this.fieldRepository = fieldRepository;
+        this.provinceRepository = provinceRepository;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
     }
@@ -67,20 +67,22 @@ public class MetricServiceImpl implements MetricService {
         List<ChartDtoOut> chart = processDailyMetrics(from, to, entityCount);
 
         MetricsByDateDtoOut result = new MetricsByDateDtoOut(
-                entityCount.get(0).getTotalCount(),
-                entityCount.get(1).getTotalCount(),
-                entityCount.get(2).getTotalCount(),
-                entityCount.get(3).getTotalCount(),
+                entityCount.get(0).getAccumulatedCount(),
+                entityCount.get(1).getAccumulatedCount(),
+                entityCount.get(2).getAccumulatedCount(),
+                entityCount.get(3).getAccumulatedCount(),
                 chart
         );
 
-        return  result;
+        return result;
     }
 
-/*    @Override
+    @Override
     public JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id) {
-        Job job = findJob(id);
-
+        Job job = jobRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND,
+                        HttpStatus.NOT_FOUND,
+                        "Job with ID " + id + " not found"));
         List<Resume> resumesBySalary = resumeRepository.findResumesBySalary(job.getSalary());
 
         Set<String> jobFieldSet = Arrays.stream(job.getFields().split("-"))
@@ -150,7 +152,7 @@ public class MetricServiceImpl implements MetricService {
                 employer.getName(),
                 matchingSeekers
         );
-    }*/
+    }
 
     private void validateDateRange(LocalDate from, LocalDate to) {
         if (from == null || to == null) {
@@ -177,7 +179,6 @@ public class MetricServiceImpl implements MetricService {
         entityCounts.add(new EntityDailyCount("resume",
                 resumeRepository.countResumeByDate(from, to), 0));
 
-        System.out.println(entityCounts);
         return entityCounts;
     }
 

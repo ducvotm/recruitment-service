@@ -7,12 +7,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vn.unigap.api.dto.in.MetricsByDateDtoIn;
+import vn.unigap.api.dto.out.JobWithSeekersDtoOut;
 import vn.unigap.api.dto.out.MetricsByDateDtoOut;
 import vn.unigap.api.service.MetricService;
 import vn.unigap.common.controller.AbstractResponseController;
@@ -38,6 +37,14 @@ public class MetricsController extends AbstractResponseController {
             MetricsByDateDtoOut result = metricService.getMetricsByDate(metricsByDateDtoIn);
             return result;
         }, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get job and matching seekers", responses = {
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = JobWithSeekersDtoOut.class))) })
+    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity<?> getJobWithSeekers(@PathVariable Long id) {
+        return responseEntity(() -> metricService.getJobWithMatchingSeekers(id));
     }
 
     // Internal Response class for Swagger documentation

@@ -13,7 +13,7 @@ import java.util.List;
 public class EntityDailyCount {
     private String entityName;
     private List<Object[]> countResults;
-    private Integer totalCount = 0;
+    private Integer accumulatedCount = 0;
 
     public Integer getDailyCount(LocalDate date) {
         Integer count = countResults.stream()
@@ -22,7 +22,7 @@ public class EntityDailyCount {
                 .findFirst()
                 .orElse(0);
 
-        totalCount += count;
+        accumulatedCount += count;
         return count;
     }
 }
