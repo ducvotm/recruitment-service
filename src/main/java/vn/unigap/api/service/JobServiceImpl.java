@@ -1,7 +1,10 @@
 package vn.unigap.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -50,9 +53,8 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
-    public JobDtoOut create(JobDtoIn jobDtoIn) {
-        validateJobReferences(jobDtoIn);
-
+    @CacheEvict(value = "JOBS", allEntries = true)
+    public JobDtoOut create(JobDtoIn jobDtoIn) { validateJobReferences(jobDtoIn);
         Job job = jobRepository.save(Job.builder()
                 .title(jobDtoIn.getTitle())
                 .employerId(jobDtoIn.getEmployerId())
@@ -69,6 +71,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @CachePut(value = "JOB", key = "#id")
     public JobDtoOut update(Long id, JobDtoIn jobDtoIn) {
         validateJobReferences(jobDtoIn);
 
@@ -108,6 +111,10 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "JOB", key = "#id"),
+            @CacheEvict(value = "JOBS", allEntries = true)
+    })
     public void delete(Long id) {
         Job job = findJob(id);
 

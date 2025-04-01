@@ -2,6 +2,7 @@ package vn.unigap.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,7 @@ public class MetricServiceImpl implements MetricService {
     }
 
     @Override
+    @Cacheable(value = "METRICS", key = "#metricsByDateDtoIn.fromDate + ' to ' + #metricsByDateDtoIn.toDate")
     public MetricsByDateDtoOut getMetricsByDate(MetricsByDateDtoIn metricsByDateDtoIn) {
         LocalDate from = metricsByDateDtoIn.getFromDate();
         LocalDate to = metricsByDateDtoIn.getToDate();
@@ -78,6 +80,7 @@ public class MetricServiceImpl implements MetricService {
     }
 
     @Override
+    @Cacheable(value = "JOB_SEEKERS", key = "#id")
     public JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id) {
         Job job = jobRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND,

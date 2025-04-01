@@ -2,7 +2,10 @@ package vn.unigap.api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -44,6 +47,7 @@ public class EmployerServiceImpl implements EmployerService {
     }
 
     @Override
+    @CacheEvict(value = "EMPLOYERS", allEntries = true)
     public EmployerDtoOut create(EmployerDtoIn employerDtoIn) {
 
         employerRepository.findByEmail(employerDtoIn.getEmail()).ifPresent(user -> {
@@ -66,6 +70,7 @@ public class EmployerServiceImpl implements EmployerService {
     }
 
     @Override
+    @CachePut(value ="EMPLOYER", key = "#id")
     public UpdateEmployerDtoOut update(Long id, EmployerDtoIn employerDtoIn) {
 
         Employer employer = findEmployer(id);
@@ -80,7 +85,6 @@ public class EmployerServiceImpl implements EmployerService {
 
         employer = employerRepository.save(employer);
 
-        // Sử dụng phương thức from để chuyển đổi entity sang DTO
         return UpdateEmployerDtoOut.from(employer);
     }
 
@@ -106,6 +110,10 @@ public class EmployerServiceImpl implements EmployerService {
 
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "EMPLOYER", key = "#id"),
+            @CacheEvict(value = "EMPLOYERS", allEntries = true)
+    })
     public void delete(Long id) {
 
         Employer employer = findEmployer(id);

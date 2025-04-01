@@ -1,6 +1,9 @@
 package vn.unigap.api.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -39,6 +42,7 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
+    @CacheEvict(value = "RESUMES", allEntries = true)
     public ResumeDtoOut create(ResumeDtoIn resumeDtoIn) {
         validateResumeJobReferences(resumeDtoIn);
 
@@ -58,6 +62,7 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
+    @CachePut(value = "RESUME", key = "#id")
     public ResumeDtoOut update(Long id, ResumeDtoIn resumeDtoIn) {
         validateResumeJobReferences(resumeDtoIn);
 
@@ -94,6 +99,10 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "EMPLOYER", key = "#id"),
+            @CacheEvict(value = "EMPLOYERS", allEntries = true)
+    })
     public void delete(Long id) {
         Resume resume = findResume(id);
 
