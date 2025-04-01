@@ -43,7 +43,7 @@ logging:
 ---
 spring:
   cache:
-    cache-names: EMPLOYER, EMPLOYERS, JOB, JOBS, SEEKER, SEEKERS, RESUME, RESUMES
+    cache-names: EMPLOYER, EMPLOYERS, JOB, JOBS, SEEKER, SEEKERS, RESUME, RESUMES, METRICS, JOB_SEEKERS
     type: redis
     redis:
       time-to-live: PT2M

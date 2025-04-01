@@ -3,7 +3,10 @@ package vn.unigap.api.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -56,6 +59,7 @@ public class SeekerServiceImpl implements SeekerService {
     }
 
     @Override
+    @CacheEvict(value = "SEEKERS", allEntries = true)
     public SeekerDtoOut create(SeekerDtoIn seekerDtoIn) {
         ValidationUtils.validateIdExists(seekerDtoIn.getProvinceId(), provinceRepository, "province");
 
@@ -72,6 +76,7 @@ public class SeekerServiceImpl implements SeekerService {
     }
 
     @Override
+    @CachePut(value = "RESUME", key = "#id")
     public SeekerDtoOut update(Long id, UpdateSeekerDtoIn updateSeekerDtoIn) {
         ValidationUtils.validateIdExists(updateSeekerDtoIn.getProvinceId(), provinceRepository, "province");
 
@@ -110,6 +115,10 @@ public class SeekerServiceImpl implements SeekerService {
 
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "SEEKER", key = "#id"),
+            @CacheEvict(value = "SEEKERS", allEntries = true)
+    })
     public void delete(Long id) {
         Seeker seeker = findSeeker(id);
 
