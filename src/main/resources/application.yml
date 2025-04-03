@@ -37,8 +37,6 @@ logging:
   level:
     root: INFO
     org.springframework.security: DEBUG
-    com.fasterxml.jackson: DEBUG
-    org.springframework.web: DEBUG
 
 ---
 spring:

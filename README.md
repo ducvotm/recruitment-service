@@ -1,223 +1,254 @@
-# Recruitment Service API
+# 🚀 Recruitment Service API
 
-## What is this?
+## What Is This Project?
 
-This is a backend service for a job recruitment platform built with Spring Boot. It helps connect employers with job seekers by managing job postings, employer profiles, seeker profiles, and resumes.
+Hello there! This project is a Spring Boot application that serves as the backend for a job recruitment platform. Think of it as the "brain" behind a job search website - it connects employers who need workers with job seekers who need jobs!
 
-Think of it as the brain behind a job website - it stores all the information and handles all the behind-the-scenes work to make the website function.
+Just like how a matchmaking service helps people find compatible partners, our Recruitment Service API helps match the right people with the right jobs. It keeps track of:
+- Companies that are hiring
+- Jobs those companies are offering
+- People looking for work
+- Resumes those people create
 
-## Technologies Used
+## 🏗️ Project Structure - The Building Blocks
 
-- **Java 17** - The programming language
-- **Spring Boot** - Framework to make Java applications easier
-- **Spring Data JPA** - For talking to the database
-- **Spring Security** - For keeping the API secure
-- **JWT** - For user authentication (like digital ID cards)
-- **MySQL** - Main database 
-- **Redis** - For caching (making things faster)
-- **MongoDB** - For storing API request/response logs
-- **Swagger/OpenAPI** - For API documentation
-- **Sentry** - For error tracking
-
-## Main Features
-
-### For Employers
-- Create and manage company profiles
-- Post new job listings
-- Update job information
-- View job applications
-
-### For Job Seekers
-- Create and manage personal profiles
-- Upload and update resumes
-- Browse job listings
-- Apply to jobs
-
-### System Features
-- JWT-based authentication
-- Role-based access control
-- API response caching with Redis
-- Request/response logging to MongoDB
-- Comprehensive error handling
-- Metrics collection and reporting
-
-## Project Structure
-
-The project follows a standard layered architecture:
+Our project follows a clean, layered architecture that separates different concerns:
 
 ```
 src/main/java/vn/unigap/
 ├── api/
-│   ├── configure/     - Configuration classes
-│   ├── controller/    - REST API endpoints
-│   ├── dto/           - Data Transfer Objects
-│   │   ├── in/        - Input DTOs
-│   │   └── out/       - Output DTOs
-│   ├── entity/        - Database entities
-│   │   ├── jpa/       - MySQL entities
-│   │   └── mongodb/   - MongoDB entities
-│   ├── repository/    - Data access
-│   │   ├── jpa/       - MySQL repositories
-│   │   └── mongodb/   - MongoDB repositories
-│   └── service/       - Business logic
-├── authentication/    - Security configuration
-├── common/            - Shared utilities
-│   ├── controller/    - Base controllers
-│   ├── enums/         - Enumeration types
-│   ├── errorcode/     - Error codes
-│   ├── exception/     - Exception handling
-│   ├── monitor/       - System monitoring
-│   └── response/      - API response structure
-└── RecruitmentServiceApplication.java - Main application entry
+│   ├── controller/ - Receives web requests (like a receptionist)
+│   ├── dto/        - Carries data between layers (like messengers)
+│   ├── entity/     - Represents database tables (like blueprints)
+│   ├── repository/ - Talks to the database (like librarians)
+│   └── service/    - Contains business logic (like managers)
+├── authentication/ - Handles security (like security guards)
+├── common/         - Shared tools (like utility belts)
+└── RecruitmentServiceApplication.java - The starting point
 ```
 
-## Setup and Installation
+## 📊 The Data Model - How Things Are Connected
 
-### Prerequisites
+Our system has six main entities that work together:
+
+1. **EMPLOYER** - Companies looking to hire people
+    - Can post multiple job listings
+
+2. **JOB** - Individual job openings
+    - Posted by one employer
+    - Belongs to one or more fields
+    - Available in one or more provinces
+
+3. **SEEKER** - People looking for jobs
+    - Lives in one province
+    - Can have multiple resumes
+
+4. **RESUME** - Job seeker's CV
+    - Belongs to one seeker
+    - Targets specific job fields
+    - Can be used to apply in multiple provinces
+
+5. **JOB_FIELD** - Categories of jobs (IT, Marketing, etc.)
+    - Pre-loaded in the database
+
+6. **JOB_PROVINCE** - Geographical areas
+    - Pre-loaded in the database
+
+Think of these as interconnected puzzle pieces that form our complete system!
+
+## 🛠️ Technologies We're Using
+
+- **Java 17** - Our main programming language
+- **Spring Boot** - Framework that makes Java development easier
+- **Spring Data JPA** - Simplifies database interactions
+- **Spring Security & JWT** - Keeps our application secure
+- **MySQL** - Stores most of our data
+- **Redis** - Makes things faster by caching frequently accessed data
+- **MongoDB** - Logs all API requests and responses
+- **Swagger/OpenAPI** - Creates interactive API documentation
+- **Sentry** - Helps us track and fix errors
+
+## 🌟 Features - What Our API Can Do
+
+### For Employers
+- Create and manage company profiles
+- Post new job listings with details about requirements
+- Update or remove job listings
+- Find candidates that match job requirements
+
+### For Job Seekers
+- Create personal profiles
+- Create and manage multiple resumes
+- Specify skills and preferred job fields
+- Set preferred work locations
+
+### System Features
+- Secure authentication using JWT tokens
+- Standardized API responses
+- Caching for improved performance
+- Comprehensive error handling
+- Detailed logging and monitoring
+
+## 🔄 API Response Format
+
+All our APIs return responses in a consistent JSON format:
+
+```json
+{
+  "errorCode": 0,
+  "statusCode": 200,
+  "message": "Success!",
+  "object": { /* returned data */ }
+}
+```
+
+For paginated data, the `object` field follows this structure:
+
+```json
+{
+  "page": 1,
+  "pageSize": 10,
+  "totalElements": 100,
+  "totalPages": 10,
+  "data": [ /* array of items */ ]
+}
+```
+
+This consistency makes our API predictable and easier to work with!
+
+## 🏁 How to Run the Project
+
+### What You'll Need First
+
+Think of these as your ingredients before cooking:
+
 - Java 17 or higher
-- Maven
-- MySQL
-- Redis
-- MongoDB
+- Maven 3.6 or higher
+- MySQL 8.0 or higher
+- Redis 6.0 or higher
+- MongoDB 4.4 or higher
 
-### Setting Up the Databases
-1. **MySQL Setup**:
-   - Create a database named `job_db`
-   - Username: `root`
-   - Password: `Admin@123` (change this in production)
+### Setting Up Your Kitchen (Environment)
 
-2. **Redis Setup**:
-   - Install Redis server
-   - Default port: 6379
-   - Password: `Redis@123`
+1. **Prepare MySQL**:
+   ```sql
+   CREATE DATABASE job_db;
+   ```
 
-3. **MongoDB Setup**:
-   - Install MongoDB server
-   - Create a database named `sample_db`
-   - Set up a user with username `user` and password `User123`
+2. **Configure the application**:
+    - Open `src/main/resources/application.yml`
+    - Update database credentials if needed
 
-### Running the Application
-1. Clone the repository
-2. Configure application settings in `src/main/resources/application.yml`
-3. Run the application using Maven:
-```bash
-mvn spring-boot:run
-```
-4. The application will start on port 8080 by default
+3. **Cook the Project (Build & Run)**:
+   ```bash
+   # Go to the project directory
+   cd recruitment-service-api
 
-## API Documentation
+   # Clean and build the project
+   mvn clean package
 
-Once the application is running, you can access the Swagger UI to explore the API:
-```
-http://localhost:8080/swagger-ui.html
-```
+   # Run the application
+   mvn spring-boot:run
+   ```
 
-### Main API Endpoints
+4. The application will be ready to serve at `http://localhost:8080`
+
+5. Check out the API documentation at:
+   ```
+   http://localhost:8080/swagger-ui.html
+   ```
+
+## 📚 Main API Endpoints - Our Service Menu
 
 - **Authentication**:
-  - POST `/auth/login` - Obtain JWT token
+    - `POST /auth/login` - Get your access token
 
 - **Employers**:
-  - GET `/employer` - List all employers
-  - GET `/employer/{id}` - Get employer details
-  - POST `/employer` - Create new employer
-  - PUT `/employer/{id}` - Update employer
-  - DELETE `/employer/{id}` - Delete employer
+    - `GET /employer` - List all employers
+    - `GET /employer/{id}` - Get one employer's details
+    - `POST /employer` - Create a new employer
+    - `PUT /employer/{id}` - Update an employer
+    - `DELETE /employer/{id}` - Remove an employer
 
 - **Jobs**:
-  - GET `/job` - List all jobs
-  - GET `/job/{id}` - Get job details
-  - POST `/job` - Create new job
-  - PUT `/job/{id}` - Update job
-  - DELETE `/job/{id}` - Delete job
+    - `GET /job` - List all jobs
+    - `GET /job/{id}` - Get one job's details
+    - `POST /job` - Create a new job
+    - `PUT /job/{id}` - Update a job
+    - `DELETE /job/{id}` - Remove a job
 
-- **Seekers** (Job Candidates):
-  - GET `/seeker` - List all seekers
-  - GET `/seeker/{id}` - Get seeker details
-  - POST `/seeker` - Create new seeker
-  - PUT `/seeker/{id}` - Update seeker
-  - DELETE `/seeker/{id}` - Delete seeker
+- **Seekers**:
+    - `GET /seeker` - List all job seekers
+    - `GET /seeker/{id}` - Get one seeker's details
+    - `POST /seeker` - Create a new seeker
+    - `PUT /seeker/{id}` - Update a seeker
+    - `DELETE /seeker/{id}` - Remove a seeker
 
 - **Resumes**:
-  - GET `/resume` - List all resumes
-  - GET `/resume/{id}` - Get resume details
-  - POST `/resume` - Create new resume
-  - PUT `/resume/{id}` - Update resume
-  - DELETE `/resume/{id}` - Delete resume
+    - `GET /resume` - List all resumes
+    - `GET /resume/{id}` - Get one resume's details
+    - `POST /resume` - Create a new resume
+    - `PUT /resume/{id}` - Update a resume
+    - `DELETE /resume/{id}` - Remove a resume
 
 - **Metrics**:
-  - GET `/metrics` - Get application metrics
+    - `GET /metrics` - Get system statistics
+    - `GET /metrics/{id}` - Get job with matching seekers
 
-## Configuration
+## 🔒 Security - Keeping Things Safe
 
-Key configuration files:
+Our application uses JWT (JSON Web Token) for authentication:
 
-1. **`application.yml`** - Main configuration file including:
-   - Database connections
-   - Redis settings
-   - MongoDB settings
-   - Logging configuration
+1. First, you get your digital "ID card" (token) by logging in:
+   ```
+   POST /auth/login
+   ```
 
-2. **`SecurityConfig.java`** - Authentication and security settings
+2. Then you present this ID card for all other requests:
+   ```
+   Authorization: Bearer your-token-here
+   ```
 
-## Error Handling
+This works just like showing your ID to enter a secure building!
 
-The application uses a centralized exception handling system through `ApiExceptionHandler.java`, which:
-- Catches and processes all exceptions
-- Returns standardized error responses
-- Logs errors to Sentry for monitoring
+## 🧪 Testing - Making Sure Everything Works
 
-## Caching Strategy
+To run the tests:
 
-- Entity caching with Redis
-- Cache configurations managed by `CacheConfig.java`
-- Cache names defined in `application.yml`:
-  - EMPLOYER
-  - EMPLOYERS
-  - JOB
-  - JOBS
-  - SEEKER
-  - SEEKERS
-  - RESUME
-  - RESUMES
+```bash
+mvn test
+```
 
-## Monitoring
+This checks if all parts of our application are working correctly.
 
-- Spring Actuator endpoints available for monitoring
-- Uptime monitoring through `UptimeMonitor.java`
-- Sentry integration for error tracking
-- Request/response logging to MongoDB
+## 🎓 What You'll Learn
 
-## Security
+By working on this project, you'll gain experience with:
 
-- JWT-based authentication
-- Public/private key pair for JWT signing
-- Role-based access control
+- Spring configuration using Java Configuration and Annotations
+- Testing Spring applications with JUnit 5
+- Data access with JDBC, JPA, and Spring Data
+- Building applications with Spring Boot
+- Understanding auto-configuration, starters, and properties
+- Creating REST APIs
+- Implementing security with Spring Security
+- Setting up monitoring with Spring Boot Actuator
 
-## For New Developers
+## 🔄 Development Workflow
 
-This project follows standard Spring Boot conventions. If you're new to the project:
+The project is structured into sprints:
+- Each sprint lasts 1-2 weeks
+- Work on feature branches named `feature/sprint-X`
+- Merge completed sprints into the `main` branch
 
-1. Start by exploring the controller classes to understand the API endpoints
-2. Look at the service interfaces to understand the business logic
-3. Examine the entity classes to understand the data model
-4. Run the application with the Swagger UI to see the API in action
+## 👥 Contributing
 
-## Tips for Contributing
-
-1. Follow the existing code style and package structure
-2. Write unit tests for new features
-3. Document API changes in the Swagger annotations
-4. Keep the README updated as the project evolves
-
-## Learning Resources
-
-If you're new to some of the technologies used:
-- [Spring Boot Reference Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/)
-- [Spring Data JPA](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
-- [Spring Security](https://docs.spring.io/spring-security/reference/index.html)
-- [JWT Authentication](https://jwt.io/introduction)
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/sprint-1`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/sprint-1`
+5. Create a Pull Request
 
 ---
 
-This project is a great showcase of Spring Boot capabilities and modern Java backend development. It demonstrates how to build a robust, scalable API with proper security, caching, and monitoring.
+I hope this README helps you understand the project! If you have questions, feel free to reach out. Happy coding! 🎉
