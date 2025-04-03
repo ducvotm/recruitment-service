@@ -9,7 +9,7 @@ import java.util.Map;
 public class RedisCacheProperties {
 
     private Duration timeToLiveDefault = Duration.ofMinutes(1);
-    private String[] dynamicNames = new String[]{};
+    private String[] dynamicNames = new String[] {};
     private Map<String, Long> ttl = Map.of(); // Map để lưu TTL cho từng cache
 
     // Getters và Setters

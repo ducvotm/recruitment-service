@@ -30,7 +30,7 @@ public class MetricsController extends AbstractResponseController {
     @Operation(summary = "Get metrics by date", responses = {
             @ApiResponse(responseCode = "200", description = "Metrics retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseMetricsByDate.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Metrics not found", content = @Content(mediaType = "application/json"))})
+            @ApiResponse(responseCode = "404", description = "Metrics not found", content = @Content(mediaType = "application/json")) })
     @GetMapping
     public ResponseEntity<?> getMetricsByDate(@RequestBody @Valid MetricsByDateDtoIn metricsByDateDtoIn) {
         return responseEntity(() -> {
@@ -40,8 +40,7 @@ public class MetricsController extends AbstractResponseController {
     }
 
     @Operation(summary = "Get job and matching seekers", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = JobWithSeekersDtoOut.class))) })
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = JobWithSeekersDtoOut.class))) })
     @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> getJobWithSeekers(@PathVariable Long id) {
         return responseEntity(() -> metricService.getJobWithMatchingSeekers(id));

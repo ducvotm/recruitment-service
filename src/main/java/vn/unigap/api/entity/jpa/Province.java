@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "job_province", indexes = {@Index(columnList = "name")})
+@Table(name = "job_province", indexes = { @Index(columnList = "name") })
 public class Province {
     @Id
     private Long id;

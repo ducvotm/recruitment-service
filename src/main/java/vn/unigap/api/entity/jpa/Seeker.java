@@ -1,13 +1,10 @@
 package vn.unigap.api.entity.jpa;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 
 import lombok.*;
 
-import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-@Table(name = "seeker", indexes = {@Index(columnList = "name"), @Index(columnList = "created_at")})
+@Table(name = "seeker", indexes = { @Index(columnList = "name"), @Index(columnList = "created_at") })
 public class Seeker {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd"; // Predefined date format

@@ -1,6 +1,5 @@
 package vn.unigap.api.entity.jpa;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true) // Enables partial updates using toBuilder()
-@Table(name = "employer", indexes = {@Index(columnList = "email"), @Index(columnList = "created_at")})
+@Table(name = "employer", indexes = { @Index(columnList = "email"), @Index(columnList = "created_at") })
 public class Employer implements Serializable {
 
     @Id

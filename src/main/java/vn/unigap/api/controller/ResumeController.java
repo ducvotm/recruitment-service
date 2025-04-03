@@ -35,7 +35,7 @@ public class ResumeController extends AbstractResponseController {
     }
 
     @Operation(summary = "List all Resumes", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageResume.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageResume.class))) })
     @GetMapping(value = "", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> list(@Valid PageDtoIn pageDtoIn) {
         return responseEntity(() -> {
@@ -44,7 +44,7 @@ public class ResumeController extends AbstractResponseController {
     }
 
     @Operation(summary = "Get Resume by ID", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseResume.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseResume.class))) })
     @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> get(@PathVariable(value = "id") Long id) {
         return responseEntity(() -> {
@@ -53,7 +53,7 @@ public class ResumeController extends AbstractResponseController {
     }
 
     @Operation(summary = "Create a new Resume", responses = {
-            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseResume.class)))})
+            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseResume.class))) })
     @PostMapping(value = "")
     public ResponseEntity<?> create(@RequestBody @Valid ResumeDtoIn ResumeDtoIn) {
         return responseEntity(() -> {
@@ -62,7 +62,7 @@ public class ResumeController extends AbstractResponseController {
     }
 
     @Operation(summary = "Update Resume", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseResume.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseResume.class))) })
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@PathVariable(value = "id") Long id, @RequestBody @Valid ResumeDtoIn ResumeDtoIn) {
         return responseEntity(() -> {
@@ -71,7 +71,7 @@ public class ResumeController extends AbstractResponseController {
     }
 
     @Operation(summary = "Delete Resume", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class))) })
     @DeleteMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) {
         return responseEntity(() -> {

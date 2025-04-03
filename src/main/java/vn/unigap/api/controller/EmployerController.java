@@ -34,7 +34,7 @@ public class EmployerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Create new employer", responses = {
-            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseEmployer.class)))})
+            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseEmployer.class))) })
     @PostMapping(value = "")
     public ResponseEntity<?> create(@RequestBody EmployerDtoIn employerDtoIn) {
         return responseEntity(() -> {
@@ -43,7 +43,7 @@ public class EmployerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Update employer's information", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "aplication/json", schema = @Schema(implementation = ResponseEmployer.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "aplication/json", schema = @Schema(implementation = ResponseEmployer.class))) })
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid EmployerDtoIn employerDtoIn) {
         return responseEntity(() -> {
@@ -52,8 +52,9 @@ public class EmployerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Get employer by ID", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseEmployer.class)))})
-    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE) // To adjust the attribute tha has already set in the @RequestMapping
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseEmployer.class))) })
+    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE) // To adjust the attribute tha has already set in the
+                                                                 // @RequestMapping
     public ResponseEntity<?> get(@PathVariable Long id) {
         return responseEntity(() -> {
             return this.employerService.get(id);
@@ -61,7 +62,7 @@ public class EmployerController extends AbstractResponseController {
     }
 
     @Operation(summary = "List all employers", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageEmployer.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageEmployer.class))) })
     @GetMapping(value = "", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> list(@Valid PageDtoIn pageDtoIn) {
         return responseEntity(() -> {
@@ -70,7 +71,7 @@ public class EmployerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Delete job", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class))) })
     @DeleteMapping(value = "{id}", consumes = MediaType.ALL_VALUE) //
     public ResponseEntity<?> delete(@PathVariable Long id) {
         return responseEntity(() -> {
@@ -84,7 +85,6 @@ public class EmployerController extends AbstractResponseController {
     }
 
     private static class ResponsePageEmployer
-            extends
-                vn.unigap.common.response.ApiResponse<PageDtoOut<EmployerDtoOut>> {
+            extends vn.unigap.common.response.ApiResponse<PageDtoOut<EmployerDtoOut>> {
     }
 }

@@ -34,12 +34,9 @@ public class EmployerServiceImpl implements EmployerService {
     private RedisTemplate<String, Object> redisTemplate;
     private ObjectMapper objectMapper;
 
-
     @Autowired
-    public EmployerServiceImpl(EmployerRepository employerRepository,
-                               ProvinceRepository provinceRepository,
-                               RedisTemplate<String, Object> redisTemplate,
-                               ObjectMapper objectMapper) {
+    public EmployerServiceImpl(EmployerRepository employerRepository, ProvinceRepository provinceRepository,
+            RedisTemplate<String, Object> redisTemplate, ObjectMapper objectMapper) {
         this.employerRepository = employerRepository;
         this.provinceRepository = provinceRepository;
         this.redisTemplate = redisTemplate;
@@ -57,12 +54,8 @@ public class EmployerServiceImpl implements EmployerService {
         Province jobProvince = provinceRepository.findById(Long.valueOf(employerDtoIn.getProvince())).orElseThrow(
                 () -> new ApiException(ErrorCode.BAD_REQUEST, HttpStatus.BAD_REQUEST, "Province does not exist"));
 
-        Employer employer = Employer.builder()
-                .email(employerDtoIn.getEmail())
-                .name(employerDtoIn.getName())
-                .province(employerDtoIn.getProvince())
-                .description(employerDtoIn.getDescription())
-                .build();
+        Employer employer = Employer.builder().email(employerDtoIn.getEmail()).name(employerDtoIn.getName())
+                .province(employerDtoIn.getProvince()).description(employerDtoIn.getDescription()).build();
 
         employer = employerRepository.save(employer);
 
@@ -70,7 +63,7 @@ public class EmployerServiceImpl implements EmployerService {
     }
 
     @Override
-    @CachePut(value ="EMPLOYER", key = "#id")
+    @CachePut(value = "EMPLOYER", key = "#id")
     public UpdateEmployerDtoOut update(Long id, EmployerDtoIn employerDtoIn) {
 
         Employer employer = findEmployer(id);
@@ -101,19 +94,16 @@ public class EmployerServiceImpl implements EmployerService {
     @Cacheable(value = "EMPLOYERS", key = "#pageDtoIn")
     public PageDtoOut<EmployerDtoOut> list(PageDtoIn pageDtoIn) {
 
-        Page<Employer> employers = this.employerRepository
-                .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(), Sort.by("name").descending()));
+        Page<Employer> employers = this.employerRepository.findAll(
+                PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize(), Sort.by("name").descending()));
 
         return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), employers.getTotalElements(),
                 employers.stream().map(EmployerDtoOut::from).toList());
     }
 
-
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "EMPLOYER", key = "#id"),
-            @CacheEvict(value = "EMPLOYERS", allEntries = true)
-    })
+    @Caching(evict = { @CacheEvict(value = "EMPLOYER", key = "#id"),
+            @CacheEvict(value = "EMPLOYERS", allEntries = true) })
     public void delete(Long id) {
 
         Employer employer = findEmployer(id);
@@ -122,11 +112,7 @@ public class EmployerServiceImpl implements EmployerService {
     }
 
     private Employer findEmployer(Long id) {
-        return employerRepository.findById(id)
-                .orElseThrow(() -> new ApiException(
-                        ErrorCode.NOT_FOUND,
-                        HttpStatus.NOT_FOUND,
-                        "Employer not found with id: " + id
-                ));
+        return employerRepository.findById(id).orElseThrow(
+                () -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Employer not found with id: " + id));
     }
 }

@@ -36,7 +36,7 @@ public class SeekerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Create new seeker", responses = {
-            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseSeeker.class)))})
+            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseSeeker.class))) })
     @PostMapping(value = "")
     public ResponseEntity<?> create(@RequestBody SeekerDtoIn seekerDtoIn) {
         return responseEntity(() -> {
@@ -45,7 +45,7 @@ public class SeekerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Update Seeker's information", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "aplication/json", schema = @Schema(implementation = ResponseSeeker.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "aplication/json", schema = @Schema(implementation = ResponseSeeker.class))) })
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody @Valid UpdateSeekerDtoIn updateSeekerDtoIn) {
         return responseEntity(() -> {
@@ -54,8 +54,9 @@ public class SeekerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Get Seeker by ID", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseSeeker.class)))})
-    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE) // To adjust the attribute tha has already set in the @RequestMapping
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseSeeker.class))) })
+    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE) // To adjust the attribute tha has already set in the
+                                                                 // @RequestMapping
     public ResponseEntity<?> get(@PathVariable Long id) {
         return responseEntity(() -> {
             return this.seekerService.get(id);
@@ -63,7 +64,7 @@ public class SeekerController extends AbstractResponseController {
     }
 
     @Operation(summary = "List all Seekers", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageSeeker.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageSeeker.class))) })
     @GetMapping(value = "", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> list(@Valid PageDtoIn pageDtoIn) {
         return responseEntity(() -> {
@@ -72,7 +73,7 @@ public class SeekerController extends AbstractResponseController {
     }
 
     @Operation(summary = "Delete job", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class))) })
     @DeleteMapping(value = "{id}", consumes = MediaType.ALL_VALUE) //
     public ResponseEntity<?> delete(@PathVariable Long id) {
         return responseEntity(() -> {
@@ -85,8 +86,6 @@ public class SeekerController extends AbstractResponseController {
     private static class ResponseSeeker extends vn.unigap.common.response.ApiResponse<SeekerDtoOut> {
     }
 
-    private static class ResponsePageSeeker
-            extends
-            vn.unigap.common.response.ApiResponse<PageDtoOut<SeekerDtoOut>> {
+    private static class ResponsePageSeeker extends vn.unigap.common.response.ApiResponse<PageDtoOut<SeekerDtoOut>> {
     }
 }

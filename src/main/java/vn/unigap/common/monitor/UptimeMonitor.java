@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class UptimeMonitor {
     private final AtomicInteger downtimeCount = new AtomicInteger(0);
 
-    @Scheduled(fixedRate = 60000)  // Run every 1 minute
+    @Scheduled(fixedRate = 60000) // Run every 1 minute
     public void checkHealth() {
         if (isServiceDown()) {
             downtimeCount.incrementAndGet();
