@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.out.JobDtoOut;
-import vn.unigap.api.dto.out.JobWithSeekersDtoOut;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.service.JobService;
 import vn.unigap.common.controller.AbstractResponseController;
@@ -36,7 +35,7 @@ public class JobController extends AbstractResponseController {
     }
 
     @Operation(summary = "List all jobs", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageJob.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponsePageJob.class))) })
     @GetMapping(value = "", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> list(@Valid PageDtoIn pageDtoIn) {
         return responseEntity(() -> {
@@ -45,7 +44,7 @@ public class JobController extends AbstractResponseController {
     }
 
     @Operation(summary = "Get job by ID", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJob.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJob.class))) })
     @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> get(@PathVariable(value = "id") Long id) {
         return responseEntity(() -> {
@@ -54,7 +53,7 @@ public class JobController extends AbstractResponseController {
     }
 
     @Operation(summary = "Create a new job", responses = {
-            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJob.class)))})
+            @ApiResponse(responseCode = "201", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJob.class))) })
     @PostMapping(value = "")
     public ResponseEntity<?> create(@RequestBody @Valid JobDtoIn jobDtoIn) {
         return responseEntity(() -> {
@@ -63,7 +62,7 @@ public class JobController extends AbstractResponseController {
     }
 
     @Operation(summary = "Update job", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJob.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ResponseJob.class))) })
     @PutMapping(value = "/{id}")
     public ResponseEntity<?> update(@PathVariable(value = "id") Long id, @RequestBody @Valid JobDtoIn jobDtoIn) {
         return responseEntity(() -> {
@@ -72,7 +71,7 @@ public class JobController extends AbstractResponseController {
     }
 
     @Operation(summary = "Delete job", responses = {
-            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class)))})
+            @ApiResponse(responseCode = "200", content = @Content(mediaType = "application/json", schema = @Schema(implementation = vn.unigap.common.response.ApiResponse.class))) })
     @DeleteMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity<?> delete(@PathVariable(value = "id") Long id) {
         return responseEntity(() -> {
@@ -80,8 +79,6 @@ public class JobController extends AbstractResponseController {
             return new HashMap<>();
         });
     }
-
-
 
     // Internal Response classes for Swagger documentation
     private static class ResponseJob extends vn.unigap.common.response.ApiResponse<JobDtoOut> {

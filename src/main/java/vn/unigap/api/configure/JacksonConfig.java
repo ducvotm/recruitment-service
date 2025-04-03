@@ -16,10 +16,8 @@ public class JacksonConfig {
         // Register modules for Java 8 date/time types
         objectMapper.registerModule(new JavaTimeModule());
         // Activate default typing to embed type info in serialized JSON
-        objectMapper.activateDefaultTyping(
-            LaissezFaireSubTypeValidator.instance,
-            ObjectMapper.DefaultTyping.NON_FINAL,
-            JsonTypeInfo.As.PROPERTY);
+        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY);
         return objectMapper;
     }
-} 
+}

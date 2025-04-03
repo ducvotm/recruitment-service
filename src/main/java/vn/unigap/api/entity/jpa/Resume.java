@@ -1,11 +1,9 @@
 package vn.unigap.api.entity.jpa;
+
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import static java.time.LocalTime.now;
 
 @Data
 @Entity

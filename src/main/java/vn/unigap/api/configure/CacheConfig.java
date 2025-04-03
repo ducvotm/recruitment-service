@@ -33,32 +33,29 @@ public class CacheConfig {
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
 
         // Default cache configuration with shared serializer
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-            .disableCachingNullValues()
-            .entryTtl(redisCacheProperties.getTimeToLiveDefault())
-            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig().disableCachingNullValues()
+                .entryTtl(redisCacheProperties.getTimeToLiveDefault())
+                .serializeKeysWith(
+                        RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
 
         // Dynamic cache configurations if needed
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
         for (String cacheName : redisCacheProperties.getDynamicNames()) {
             Long ttl = redisCacheProperties.getTtl().get(cacheName);
-            Duration cacheTtl = Optional.ofNullable(ttl)
-                .map(Duration::ofSeconds)
-                .orElse(redisCacheProperties.getTimeToLiveDefault());
+            Duration cacheTtl = Optional.ofNullable(ttl).map(Duration::ofSeconds)
+                    .orElse(redisCacheProperties.getTimeToLiveDefault());
 
             RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .disableCachingNullValues()
-                .entryTtl(cacheTtl)
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
+                    .disableCachingNullValues().entryTtl(cacheTtl)
+                    .serializeKeysWith(
+                            RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
+                    .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
             cacheConfigurations.put(cacheName, cacheConfig);
         }
 
-        return RedisCacheManager.builder(connectionFactory)
-            .cacheDefaults(defaultConfig)
-            .withInitialCacheConfigurations(cacheConfigurations)
-            .build();
+        return RedisCacheManager.builder(connectionFactory).cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(cacheConfigurations).build();
     }
 }

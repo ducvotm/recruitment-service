@@ -41,8 +41,10 @@ public class MetricServiceImpl implements MetricService {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository, SeekerRepository seekerRepository, ResumeRepository resumeRepository,
-            RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, FieldRepository fieldRepository, ProvinceRepository provinceRepository) {
+    public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository,
+            SeekerRepository seekerRepository, ResumeRepository resumeRepository,
+            RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, FieldRepository fieldRepository,
+            ProvinceRepository provinceRepository) {
         this.employerRepository = employerRepository;
         this.jobRepository = jobRepository;
         this.seekerRepository = seekerRepository;
@@ -68,13 +70,9 @@ public class MetricServiceImpl implements MetricService {
 
         List<ChartDtoOut> chart = processDailyMetrics(from, to, entityCount);
 
-        MetricsByDateDtoOut result = new MetricsByDateDtoOut(
-                entityCount.get(0).getAccumulatedCount(),
-                entityCount.get(1).getAccumulatedCount(),
-                entityCount.get(2).getAccumulatedCount(),
-                entityCount.get(3).getAccumulatedCount(),
-                chart
-        );
+        MetricsByDateDtoOut result = new MetricsByDateDtoOut(entityCount.get(0).getAccumulatedCount(),
+                entityCount.get(1).getAccumulatedCount(), entityCount.get(2).getAccumulatedCount(),
+                entityCount.get(3).getAccumulatedCount(), chart);
 
         return result;
     }
@@ -82,79 +80,52 @@ public class MetricServiceImpl implements MetricService {
     @Override
     @Cacheable(value = "JOB_SEEKERS", key = "#id")
     public JobWithSeekersDtoOut getJobWithMatchingSeekers(Long id) {
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND,
-                        HttpStatus.NOT_FOUND,
-                        "Job with ID " + id + " not found"));
+        Job job = jobRepository.findById(id).orElseThrow(
+                () -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Job with ID " + id + " not found"));
         List<Resume> resumesBySalary = resumeRepository.findResumesBySalary(job.getSalary());
 
-        Set<String> jobFieldSet = Arrays.stream(job.getFields().split("-"))
-                .filter(s -> !s.isEmpty())
+        Set<String> jobFieldSet = Arrays.stream(job.getFields().split("-")).filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
-        Set<String> jobProvinceSet = Arrays.stream(job.getProvinces().split("-"))
-                .filter(s -> !s.isEmpty())
+        Set<String> jobProvinceSet = Arrays.stream(job.getProvinces().split("-")).filter(s -> !s.isEmpty())
                 .collect(Collectors.toSet());
 
         List<Resume> matchingResumes = resumesBySalary.stream().filter(resume -> {
-            Set<String> resumeFieldSet = Arrays.stream(resume.getFields().split("-"))
-                    .filter(s -> !s.isEmpty())
+            Set<String> resumeFieldSet = Arrays.stream(resume.getFields().split("-")).filter(s -> !s.isEmpty())
                     .collect(Collectors.toSet());
-            Set<String> resumeProvinceSet = Arrays.stream(resume.getProvinces().split("-"))
-                    .filter(s -> !s.isEmpty())
+            Set<String> resumeProvinceSet = Arrays.stream(resume.getProvinces().split("-")).filter(s -> !s.isEmpty())
                     .collect(Collectors.toSet());
             boolean fieldMatches = resumeFieldSet.stream().anyMatch(jobFieldSet::contains);
             boolean provinceMatches = resumeProvinceSet.stream().anyMatch(jobProvinceSet::contains);
             return fieldMatches && provinceMatches;
         }).collect(Collectors.toList());
 
-        List<SeekerDtoOut> matchingSeekers = matchingResumes.stream()
-                .map(resume -> {
-                    Long seekerId = resume.getSeekerId(); // Use the seeker id from the resume entity.
-                    Seeker seeker = seekerRepository.findById(seekerId)
-                            .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND,
-                                    "Seeker with ID " + seekerId + " not found"));
-                    return SeekerDtoOut.from(seeker);
-                })
-                .distinct()
-                .collect(Collectors.toList());
+        List<SeekerDtoOut> matchingSeekers = matchingResumes.stream().map(resume -> {
+            Long seekerId = resume.getSeekerId(); // Use the seeker id from the resume entity.
+            Seeker seeker = seekerRepository.findById(seekerId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND,
+                    HttpStatus.NOT_FOUND, "Seeker with ID " + seekerId + " not found"));
+            return SeekerDtoOut.from(seeker);
+        }).distinct().collect(Collectors.toList());
 
-        List<FieldDtoOut> fieldDtos = jobFieldSet.stream()
-                .map(fieldIdStr -> {
-                    Long fieldId = Long.valueOf(fieldIdStr);
-                    var fieldEntity = fieldRepository.findById(fieldId)
-                            .orElseThrow(() -> new ApiException(
-                                    ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND,
-                                    "Field with ID " + fieldId + " not found"));
-                    return new FieldDtoOut(fieldEntity.getId(), fieldEntity.getName());
-                })
-                .collect(Collectors.toList());
+        List<FieldDtoOut> fieldDtos = jobFieldSet.stream().map(fieldIdStr -> {
+            Long fieldId = Long.valueOf(fieldIdStr);
+            var fieldEntity = fieldRepository.findById(fieldId).orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND,
+                    HttpStatus.NOT_FOUND, "Field with ID " + fieldId + " not found"));
+            return new FieldDtoOut(fieldEntity.getId(), fieldEntity.getName());
+        }).collect(Collectors.toList());
 
-        List<ProvinceDtoOut> provinceDtos = jobProvinceSet.stream()
-                .map(provinceIdStr -> {
-                    Long provinceId = Long.valueOf(provinceIdStr);
-                    var provinceEntity = provinceRepository.findById(provinceId)
-                            .orElseThrow(() -> new ApiException(
-                                    ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND,
-                                    "Province with ID " + provinceId + " not found"));
-                    return new ProvinceDtoOut(provinceEntity.getId(), provinceEntity.getName());
-                })
-                .collect(Collectors.toList());
+        List<ProvinceDtoOut> provinceDtos = jobProvinceSet.stream().map(provinceIdStr -> {
+            Long provinceId = Long.valueOf(provinceIdStr);
+            var provinceEntity = provinceRepository.findById(provinceId)
+                    .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND,
+                            "Province with ID " + provinceId + " not found"));
+            return new ProvinceDtoOut(provinceEntity.getId(), provinceEntity.getName());
+        }).collect(Collectors.toList());
 
         Employer employer = employerRepository.findById(job.getEmployerId())
                 .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, HttpStatus.NOT_FOUND, "Employer not found"));
 
-        return new JobWithSeekersDtoOut(
-                job.getId(),
-                job.getTitle(),
-                job.getQuantity(),
-                fieldDtos,
-                provinceDtos,
-                job.getSalary(),
-                job.getExpiredAt(),
-                employer.getId(),
-                employer.getName(),
-                matchingSeekers
-        );
+        return new JobWithSeekersDtoOut(job.getId(), job.getTitle(), job.getQuantity(), fieldDtos, provinceDtos,
+                job.getSalary(), job.getExpiredAt(), employer.getId(), employer.getName(), matchingSeekers);
     }
 
     private void validateDateRange(LocalDate from, LocalDate to) {
@@ -170,17 +141,13 @@ public class MetricServiceImpl implements MetricService {
     private List<EntityDailyCount> fetchEntityCounts(LocalDateTime from, LocalDateTime to) {
         List<EntityDailyCount> entityCounts = new ArrayList<>();
 
-        entityCounts.add(new EntityDailyCount("employer",
-                employerRepository.countEmployerByDate(from, to), 0));
+        entityCounts.add(new EntityDailyCount("employer", employerRepository.countEmployerByDate(from, to), 0));
 
-        entityCounts.add(new EntityDailyCount("job",
-                jobRepository.countJobByDate(from, to), 0));
+        entityCounts.add(new EntityDailyCount("job", jobRepository.countJobByDate(from, to), 0));
 
-        entityCounts.add(new EntityDailyCount("seeker",
-                seekerRepository.countSeekerByDate(from, to), 0));
+        entityCounts.add(new EntityDailyCount("seeker", seekerRepository.countSeekerByDate(from, to), 0));
 
-        entityCounts.add(new EntityDailyCount("resume",
-                resumeRepository.countResumeByDate(from, to), 0));
+        entityCounts.add(new EntityDailyCount("resume", resumeRepository.countResumeByDate(from, to), 0));
 
         return entityCounts;
     }

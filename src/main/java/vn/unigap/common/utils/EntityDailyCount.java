@@ -16,11 +16,8 @@ public class EntityDailyCount {
     private Integer accumulatedCount = 0;
 
     public Integer getDailyCount(LocalDate date) {
-        Integer count = countResults.stream()
-                .filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(date))
-                .map(r -> ((Number) r[1]).intValue())
-                .findFirst()
-                .orElse(0);
+        Integer count = countResults.stream().filter(r -> ((java.sql.Date) r[0]).toLocalDate().equals(date))
+                .map(r -> ((Number) r[1]).intValue()).findFirst().orElse(0);
 
         accumulatedCount += count;
         return count;

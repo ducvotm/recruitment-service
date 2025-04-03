@@ -51,7 +51,8 @@ public class AuthServiceImpl implements AuthService {
         return AuthLoginDtoOut.builder().accessToken(grantAccessToken(userDetails.getUsername())).build();
     }
 
-/*  * @Override public AuthLoginDtoOut validateAndRefreshAccessToken(String
+    /*
+     * * @Override public AuthLoginDtoOut validateAndRefreshAccessToken(String
      * accessToken, String refreshToken) { if (accessToken == null || refreshToken
      * == null) { log.error("Access token or refresh token is null"); throw new
      * ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED,
@@ -77,10 +78,8 @@ public class AuthServiceImpl implements AuthService {
      * .refreshToken(refreshToken) .build(); } catch (JwtException e) {
      * log.error("Invalid access token: ", e); throw new
      * ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED,
-     * "Invalid access token"); } }*/
-
-
-
+     * "Invalid access token"); } }
+     */
 
     private UserDetails getUserDetails(String username) {
         try {
@@ -98,7 +97,8 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-/*     * private String validateRefreshToken(String refreshToken) { try { Jwt
+    /*
+     * * private String validateRefreshToken(String refreshToken) { try { Jwt
      * decodedJwt = jwtDecoder.decode(refreshToken); // Decode and validate using
      * public key
      * 
@@ -112,10 +112,8 @@ public class AuthServiceImpl implements AuthService {
      * decodedJwt.getSubject(); } catch (JwtException e) {
      * log.error("Invalid refresh token: ", e); throw new
      * ApiException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED,
-     * "Invalid refresh token"); } }*/
-
-
-
+     * "Invalid refresh token"); } }
+     */
 
     private String grantAccessToken(String username) {
         long iat = System.currentTimeMillis() / 1000;

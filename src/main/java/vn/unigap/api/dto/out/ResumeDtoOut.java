@@ -1,17 +1,12 @@
 package vn.unigap.api.dto.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.unigap.api.entity.jpa.Resume;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Builder
@@ -48,16 +43,9 @@ public class ResumeDtoOut {
     private LocalDateTime updatedAt;
 
     public static ResumeDtoOut from(Resume resume) {
-        return ResumeDtoOut.builder()
-                .id(resume.getId())
-                .seekerId(resume.getSeekerId())
-                .careerObj(resume.getCareerObj())
-                .title(resume.getTitle())
-                .salary(resume.getSalary())
-                .fields(resume.getFields())
-                .provinces(resume.getProvinces())
-                .createdAt(resume.getCreatedAt())
-                .updatedAt(resume.getUpdatedAt())
+        return ResumeDtoOut.builder().id(resume.getId()).seekerId(resume.getSeekerId()).careerObj(resume.getCareerObj())
+                .title(resume.getTitle()).salary(resume.getSalary()).fields(resume.getFields())
+                .provinces(resume.getProvinces()).createdAt(resume.getCreatedAt()).updatedAt(resume.getUpdatedAt())
                 .build();
     }
 }

@@ -8,16 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import vn.unigap.api.dto.in.JobDtoIn;
 import vn.unigap.api.dto.in.PageDtoIn;
 import vn.unigap.api.dto.in.ResumeDtoIn;
-import vn.unigap.api.dto.in.SeekerDtoIn;
 import vn.unigap.api.dto.out.PageDtoOut;
 import vn.unigap.api.dto.out.ResumeDtoOut;
-import vn.unigap.api.entity.jpa.Field;
-import vn.unigap.api.entity.jpa.Province;
 import vn.unigap.api.entity.jpa.Resume;
-import vn.unigap.api.entity.jpa.Seeker;
 import vn.unigap.api.repository.jpa.FieldRepository;
 import vn.unigap.api.repository.jpa.ProvinceRepository;
 import vn.unigap.api.repository.jpa.ResumeRepository;
@@ -34,11 +29,12 @@ public class ResumeServiceImpl implements ResumeService {
     private final FieldRepository fieldRepository;
     private final ProvinceRepository provinceRepository;
 
-    public ResumeServiceImpl(ResumeRepository resumeRepository, SeekerRepository seekerRepository, FieldRepository fieldRepository, ProvinceRepository provinceRepository) {
-       this.resumeRepository = resumeRepository;
-       this.seekerRepository = seekerRepository;
-       this.fieldRepository = fieldRepository;
-       this.provinceRepository = provinceRepository;
+    public ResumeServiceImpl(ResumeRepository resumeRepository, SeekerRepository seekerRepository,
+            FieldRepository fieldRepository, ProvinceRepository provinceRepository) {
+        this.resumeRepository = resumeRepository;
+        this.seekerRepository = seekerRepository;
+        this.fieldRepository = fieldRepository;
+        this.provinceRepository = provinceRepository;
     }
 
     @Override
@@ -46,14 +42,9 @@ public class ResumeServiceImpl implements ResumeService {
     public ResumeDtoOut create(ResumeDtoIn resumeDtoIn) {
         validateResumeJobReferences(resumeDtoIn);
 
-        Resume resume = Resume.builder()
-                .seekerId(resumeDtoIn.getSeekerId())
-                .careerObj(resumeDtoIn.getCareerObj())
-                .title(resumeDtoIn.getTitle())
-                .salary(resumeDtoIn.getSalary())
-                .fields(resumeDtoIn.getFieldIds())
-                .provinces(resumeDtoIn.getProvinceIds())
-                .build();
+        Resume resume = Resume.builder().seekerId(resumeDtoIn.getSeekerId()).careerObj(resumeDtoIn.getCareerObj())
+                .title(resumeDtoIn.getTitle()).salary(resumeDtoIn.getSalary()).fields(resumeDtoIn.getFieldIds())
+                .provinces(resumeDtoIn.getProvinceIds()).build();
 
         resume = resumeRepository.save(resume);
 
@@ -91,7 +82,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Cacheable(value = "RESUMES", key = "#pageDtoIn")
     public PageDtoOut<ResumeDtoOut> list(PageDtoIn pageDtoIn) {
         Page<Resume> resumes = resumeRepository
-                .findAll(PageRequest.of(pageDtoIn.getPage() -1, pageDtoIn.getPageSize()));
+                .findAll(PageRequest.of(pageDtoIn.getPage() - 1, pageDtoIn.getPageSize()));
 
         return PageDtoOut.from(pageDtoIn.getPage(), pageDtoIn.getPageSize(), resumes.getTotalElements(),
                 resumes.stream().map(ResumeDtoOut::from).toList());
@@ -99,10 +90,8 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = "EMPLOYER", key = "#id"),
-            @CacheEvict(value = "EMPLOYERS", allEntries = true)
-    })
+    @Caching(evict = { @CacheEvict(value = "EMPLOYER", key = "#id"),
+            @CacheEvict(value = "EMPLOYERS", allEntries = true) })
     public void delete(Long id) {
         Resume resume = findResume(id);
 
