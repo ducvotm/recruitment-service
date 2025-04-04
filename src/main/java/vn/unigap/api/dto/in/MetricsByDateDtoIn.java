@@ -1,6 +1,6 @@
 package vn.unigap.api.dto.in;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,11 +15,11 @@ import java.time.LocalDate;
 @Builder
 public class MetricsByDateDtoIn {
 
-    @NotEmpty
+    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate fromDate;
 
-    @NotEmpty
+    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate toDate;
 }
