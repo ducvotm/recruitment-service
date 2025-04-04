@@ -63,3 +63,5 @@ volumes:
     driver: local
   mysql-db:
     driver: local
+  redis:
+    driver: local

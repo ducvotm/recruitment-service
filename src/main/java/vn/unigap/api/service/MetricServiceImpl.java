@@ -1,9 +1,7 @@
 package vn.unigap.api.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -31,19 +29,16 @@ import java.util.stream.Collectors;
 public class MetricServiceImpl implements MetricService {
 
     private final EmployerRepository employerRepository;
-    private final JobRepository jobRepository;
     private final SeekerRepository seekerRepository;
     private final ResumeRepository resumeRepository;
+
+    private final JobRepository jobRepository;
     private final FieldRepository fieldRepository;
     private final ProvinceRepository provinceRepository;
 
-    private final RedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper;
-
     @Autowired
     public MetricServiceImpl(EmployerRepository employerRepository, JobRepository jobRepository,
-            SeekerRepository seekerRepository, ResumeRepository resumeRepository,
-            RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, FieldRepository fieldRepository,
+            SeekerRepository seekerRepository, ResumeRepository resumeRepository, FieldRepository fieldRepository,
             ProvinceRepository provinceRepository) {
         this.employerRepository = employerRepository;
         this.jobRepository = jobRepository;
@@ -51,8 +46,6 @@ public class MetricServiceImpl implements MetricService {
         this.resumeRepository = resumeRepository;
         this.fieldRepository = fieldRepository;
         this.provinceRepository = provinceRepository;
-        this.redisTemplate = redisTemplate;
-        this.objectMapper = objectMapper;
     }
 
     @Override
