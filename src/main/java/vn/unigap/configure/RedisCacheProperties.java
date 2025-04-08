@@ -1,4 +1,4 @@
-package vn.unigap.api.configure;
+package vn.unigap.configure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -10,9 +10,8 @@ public class RedisCacheProperties {
 
     private Duration timeToLiveDefault = Duration.ofMinutes(1);
     private String[] dynamicNames = new String[] {};
-    private Map<String, Long> ttl = Map.of(); // Map để lưu TTL cho từng cache
+    private Map<String, Long> ttl = Map.of();
 
-    // Getters và Setters
     public Duration getTimeToLiveDefault() {
         return timeToLiveDefault;
     }
