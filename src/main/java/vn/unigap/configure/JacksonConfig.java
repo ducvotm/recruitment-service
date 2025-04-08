@@ -1,4 +1,4 @@
-package vn.unigap.api.configure;
+package vn.unigap.configure;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
