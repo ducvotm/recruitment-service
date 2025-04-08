@@ -133,7 +133,7 @@ Represents geographical regions:
 | totalPages     | Total number of pages         |
 | data           | Array of returned data        |
 
-## 🔗 Useful Links
+## 🔗 Monitoring Links
 
 ### Swagger Documentation
 [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
